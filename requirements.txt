@@ -1,6 +1,6 @@
 torch==1.13.0+cu116
-torchvision==0.14.0
-torchaudio==0.13.0
+torchvision==0.14.0+cu116
+torchaudio==0.13.0+cu116
 tensorboard==2.8.0
 GPUtil==1.4.0
 cuda-python==11.8.1
