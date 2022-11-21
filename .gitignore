@@ -15,3 +15,12 @@ Notebooks/data/MNIST/raw/train-images-idx3-ubyte
 Notebooks/data/MNIST/raw/train-images-idx3-ubyte.gz
 Notebooks/data/MNIST/raw/train-labels-idx1-ubyte
 Notebooks/data/MNIST/raw/train-labels-idx1-ubyte.gz
+Notebooks/VAE_mnist_peladeau.pt
+data/MNIST/raw/t10k-images-idx3-ubyte
+data/MNIST/raw/t10k-images-idx3-ubyte.gz
+data/MNIST/raw/t10k-labels-idx1-ubyte
+data/MNIST/raw/t10k-labels-idx1-ubyte.gz
+data/MNIST/raw/train-images-idx3-ubyte
+data/MNIST/raw/train-images-idx3-ubyte.gz
+data/MNIST/raw/train-labels-idx1-ubyte
+data/MNIST/raw/train-labels-idx1-ubyte.gz
