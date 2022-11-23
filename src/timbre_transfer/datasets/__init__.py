@@ -1,5 +1,3 @@
-# Author : Come Peladeau
-
 from torch.utils.data import Dataset, DataLoader
 import json
 import torchaudio
@@ -16,9 +14,9 @@ class NSynthDataset(Dataset):
     def __init__(self, root_dir, usage = 'train', transform = None):
         self.root_dir = root_dir
         train_valid_test = {
-            'train' : 'nsynth-train',
-            'test' : 'nsynth-test',
-            'valid' : 'nsynth-valid',
+            'train' : '../../../data/NSynth/nsynth-train',
+            'test' : '../../../data/NSynth/nsynth-test',
+            'valid' : '../../../data/NSynth/nsynth-valid',
         }
         
         self.set_dir = os.path.join(self.root_dir, train_valid_test[usage])
@@ -40,11 +38,3 @@ class NSynthDataset(Dataset):
         
         print(label)
         return waveform, label['instrument_family']
-
-def transform(x):
-    stft_system = GaussTF(hop_size=hop_size, stft_channels=stft_channels)
-    X = stft_system.spectrogram(waveform)
-    log_X = log_mel_spectrogram(X, stft_channels, n_mels)
-    return log_X
-
-    
