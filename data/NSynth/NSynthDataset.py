@@ -5,6 +5,12 @@ import json
 import torchaudio
 import os
 import torch
+from tifresi.stft import GaussTF
+from tifresi.transforms import import log_mel_spectrogram
+from tifresi.hparams import HParams
+stft_channels = HParams.stft_channels # 1024
+hop_size = HParams.hop_size # 256
+n_mels = HParams.n_mels # 80
 
 class NSynthDataset(Dataset):
     def __init__(self, root_dir, usage = 'train', transform = None):
@@ -34,3 +40,11 @@ class NSynthDataset(Dataset):
         
         print(label)
         return waveform, label['instrument_family']
+
+def transform(x):
+    stft_system = GaussTF(hop_size=hop_size, stft_channels=stft_channels)
+    X = stft_system.spectrogram(waveform)
+    log_X = log_mel_spectrogram(X, stft_channels, n_mels)
+    return log_X
+
+    
