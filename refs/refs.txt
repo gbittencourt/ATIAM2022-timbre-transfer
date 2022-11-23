@@ -1,0 +1,45 @@
+[1] Ehab A AlBadawy and Siwei Lyu. Voice conversion using speech-to-speech neuro-style transfer. In Interspeech, pages 4726–4730, 2020.
+    > Voice Conversion Using Speech-to-Speech Neuro-Style Transfer >> https://ebadawy.github.io/post/speech_style_transfer/
+
+[2] Martin Arjovsky, Soumith Chintala, and Léon Bottou. Wasserstein gan. arxiv e-prints, page. arXiv preprint arXiv:1701.07875, 1(2):3, 2017.
+    > Wasserstein GAN >> https://arxiv.org/abs/1701.07875
+
+[3] Antoine Caillon and Philippe Esling. Rave: A variational autoencoder for fast and high-quality neural audio synthesis. arXiv preprint arXiv:2111.05011, 2021.
+    > Rave: A variational autoencoder for fast and high-quality neural audio synthesis >> https://arxiv.org/abs/2111.05011
+
+[4] Jesse Engel, Kumar Krishna Agrawal, Shuo Chen, Ishaan Gulrajani, Chris Donahue, and Adam Roberts. Gan-synth: Adversarial neural audio synthesis. arXiv preprint arXiv:1902.08710, 2019.
+    > Gan-synth: Adversarial neural audio synthesis >> https://arxiv.org/abs/1902.08710
+
+[5] Jesse Engel, Lamtharn Hantrakul, Chenjie Gu, and Adam Roberts. Ddsp: Differentiable digital signal processing. arXiv preprint arXiv:2001.04643, 2020.
+    > Ddsp: Differentiable digital signal processing >> https://arxiv.org/abs/2001.04643
+
+[6] Ian Goodfellow, Jean Pouget-Abadie, Mehdi Mirza, Bing Xu, David Warde-Farley, Sherjil Ozair, Aaron Courville, and Yoshua Bengio. Generative adversarial nets. Advances in neural information processing systems, 27, 2014.
+    > Generative adversarial nets >> https://dl.acm.org/doi/abs/10.1145/3422622
+
+[7] Irina Higgins, Lo ̈ıc Matthey, Arka Pal, Christopher Burgess, Xavier Glorot, Matthew M Botvinick, Shakir Mohamed, and Alexander Lerchner. beta-vae: Learning basic visual concepts with a constrained variational framework. In ICLR, 2017.
+
+[8] Diederik P Kingma and Max Welling. Auto-encoding variational bayes. arXiv:1312.6114, 2013.
+    > Auto-encoding variational bayes >> https://arxiv.org/abs/1312.6114
+
+[9] Jae Hyun Lim and Jong Chul Ye. Geometric gan. arXiv preprint arXiv:1705.02894, 2017.
+    > Geometric gan >> https://arxiv.org/abs/1705.02894
+
+[10] Ming-Yu Liu, Thomas Breuel, and Jan Kautz. Unsupervised image-to-image translation networks. Advances in neural information processing systems, 30, 2017.
+    > Unsupervised image-to-image translation networks >> https://proceedings.neurips.cc/paper/2017/hash/dc6a6489640ca02b0d42dabeb8e46bb7-Abstract.html
+
+[11] Xudong Mao, Qing Li, Haoran Xie, Raymond YK Lau, Zhen Wang, and Stephen Paul Smolley. Least squares generative adversarial networks. In Proceedings of the IEEE international conference on computer vision, pages 2794–2802, 2017.
+    > Least squares generative adversarial networks >> https://arxiv.org/abs/1611.04076
+        >> https://openaccess.thecvf.com/content_iccv_2017/html/Mao_Least_Squares_Generative_ICCV_2017_paper.html
+
+[12] Noam Mor, Lior Wolf, Adam Polyak, and Yaniv Taigman. A universal music translation network. arXiv preprint arXiv:1805.07848, 2018.
+    > A universal music translation network >> https://arxiv.org/abs/1805.07848
+
+[13] Aaron van den Oord, Sander Dieleman, Heiga Zen, Karen Simonyan, Oriol Vinyals, Alex Graves, Nal Kalch-brenner, Andrew Senior, and Koray Kavukcuoglu. Wavenet: A generative model for raw audio. arXiv preprint arXiv:1609.03499, 2016.
+    > Wavenet: A generative model for raw audio >> https://arxiv.org/abs/1609.03499
+
+[14] Alec Radford, Luke Metz, and Soumith Chintala. Unsupervised representation learning with deep convolutional generative adversarial networks. arXiv preprint arXiv:1511.06434, 2015.
+    > Unsupervised representation learning with deep convolutional generative adversarial networks >> https://arxiv.org/abs/1511.06434
+
+[15] Jun-Yan Zhu, Taesung Park, Phillip Isola, and Alexei A Efros. Unpaired image-to-image translation using cycle-consistent adversarial networks. In Proceedings of the IEEE international conference on computer vision, pages 2223–2232, 2017.
+    > Unpaired image-to-image translation using cycle-consistent adversarial networks >> https://arxiv.org/abs/1703.10593v6
+        >> https://openaccess.thecvf.com/content_iccv_2017/html/Zhu_Unpaired_Image-To-Image_Translation_ICCV_2017_paper.html
