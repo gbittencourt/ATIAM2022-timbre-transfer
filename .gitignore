@@ -24,3 +24,15 @@ data/MNIST/raw/train-images-idx3-ubyte
 data/MNIST/raw/train-images-idx3-ubyte.gz
 data/MNIST/raw/train-labels-idx1-ubyte
 data/MNIST/raw/train-labels-idx1-ubyte.gz
+data/NSynth/nsynth-test/audio/bass_electronic_018-023-025.wav
+*.wav
+*.gz
+*.part
+Notebooks/.ipynb_checkpoints/Spectral_VAE_Peladeau-checkpoint.ipynb
+Notebooks/.ipynb_checkpoints/VAE_mnist_PELADEAU_Come-checkpoint.ipynb
+data/NSynth/nsynth-test/examples.json
+data/NSynth/nsynth-valid/examples.json
+data/NSynth/nsynth-train/examples.json
+data/NSynth/nsynth-train.jsonwav.tar
+data/NSynth/__pycache__/NSynthDataset.cpython-39.pyc
+data/NSynth/__pycache__/NSynth.cpython-39.pyc
