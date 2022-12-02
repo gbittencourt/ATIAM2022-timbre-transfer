@@ -28,28 +28,34 @@ class NSynthDataset(Dataset):
     def __init__(self, root_dir, usage = 'train', transform = None, select_class = None):
         self.root_dir = root_dir
         train_valid_test = {
-            'train' : 'nsynth-train',
-            'test' :  'nsynth-test',
-            'valid' : 'nsynth-valid',
+            'train' : 'NSynth/nsynth-train',
+            'test' :  'NSynth/nsynth-test',
+            'valid' : 'NSynth/nsynth-valid',
         }
         
         self.set_dir = os.path.join(self.root_dir, train_valid_test[usage])
         self.audio_dir = os.path.join(self.set_dir, 'audio')
         self.file_names = os.listdir(self.audio_dir)
+        self.transform = transform
         if select_class != None:
             self.file_names = list(filter(lambda x: select_class in x, self.file_names))
         
-        print(self.file_names)
-
         self.labels = json.load(open(os.path.join(self.set_dir,'examples.json')))
+        
         self.transform = transform
        
     def __len__(self):
         return len(self.file_names)
-
     def __getitem__(self, idx):
 
         audio_path = os.path.join(self.audio_dir, self.file_names[idx])
+        label = self.labels[self.file_names[idx][:-4]]['instrument_family']
+        
         waveform, samplerate = torchaudio.load(audio_path)
-        print(audio_path)
-        return waveform
+        if self.transform==None:
+            output = torch.Tensor(waveform)
+        else:
+            output = self.transform(torch.Tensor(waveform))
+        
+        output = output/torch.max(output)
+        return output, label

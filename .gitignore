@@ -10,6 +10,10 @@ src/timbre_transfer/datasets/__pycache__/__init__.cpython-39.pyc
 src/timbre_transfer/__pycache__/__init__.cpython-39.pyc
 src/timbre_transfer/datasets/__pycache__/NSynthDataset.cpython-39.pyc
 
+*.pyc
+runs/*
+*.pt
+
 data/*
 models/*
 *.cache
