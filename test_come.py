@@ -7,7 +7,10 @@ import torchvision
 from torchvision.transforms import ToTensor 
 from torch.utils.tensorboard import SummaryWriter
 import os
-writer = SummaryWriter('runs/spectralVAE_experiment_1')
+
+# Name of the saved trained network
+preTrained_saveName = "spectral_VAE_s4"
+writer = SummaryWriter(os.path.join('runs',preTrained_saveName))
 
 
 from src.timbre_transfer.datasets.NSynthDataset import NSynthDataset
@@ -41,21 +44,19 @@ hidden_dim = 256
 # Dimension of the latent space
 latent_dim = 128
 # Number of filters of the first convolutionnal layer
-base_depth = 32
+base_depth = 128
 # Max number of channels of te convolutionnal layers
 max_depth = 512
 # Number of convolutionnal layers
-n_convLayers = 5
-# Kernel size of convolutionnal layers
-kernel_size = 5
-# Stride of convolutionnal layers
-stride = 2
+n_convLayers = 3
+# Kernel size of convolutionnal layers (recommended : stride*2+1)
+kernel_size = 9
+# Stride of convolutionnal layers (recommended : 2 or 4)
+stride = 4
 # Models returns images of size freqs_dim*len_dim
 freqs_dim = 128
 len_dim = 128
 
-# Name of the saved trained network
-preTrained_saveName = "spectral_VAE.pt"
 
 AT = AudioTransform(input_freq = 16000, n_fft = 1024, n_mel = 128, stretch_factor=.8)
 
@@ -63,7 +64,7 @@ AT = AudioTransform(input_freq = 16000, n_fft = 1024, n_mel = 128, stretch_facto
 train_dataset = NSynthDataset('data/', usage = 'train', select_class='vocal_acoustic', transform=AT)
 valid_dataset = NSynthDataset('data/', usage = 'valid', select_class='vocal_acoustic', transform=AT)
 nb_train = int(train_ratio * len(train_dataset))
-print(f"Number of training examples{nb_train}")
+print(f"Number of training examples : {nb_train}")
 
 
 
@@ -129,8 +130,8 @@ decoder = Spectral_Decoder(
 model = SpectralVAE(encoder, decoder, freqs_dim = freqs_dim, len_dim = len_dim, encoding_dim = hidden_dim, latent_dim = latent_dim)
 
 ## Loading pre-trained model
-if os.path.isfile(preTrained_saveName):
-    model.load_state_dict(torch.load('./'+preTrained_saveName))
+if os.path.isfile(preTrained_saveName+'.pt'):
+    model.load_state_dict(torch.load('./'+preTrained_saveName+'.pt'))
 
 # Optimizer
 optimizer = torch.optim.Adam(model.parameters(), lr=lr)
@@ -146,19 +147,19 @@ x_test = x_test.to(device)
 
 ## Training
 for epoch in range(epochs):
-    losses_vect = [[],[],[]]
+    losses_vect = np.zeros(3)
     for i, (x,_) in enumerate(iter(train_loader)):
         losses = train_step_beta(model, x, optimizer, beta)
         for j,l in enumerate(losses):
-            losses_vect[j].append(l.cpu().detach()/x.size()[0])
+            losses_vect[j]+=l.cpu().detach().numpy()*x.size()[0]/nb_train
     
     # Saving trained model
-    torch.save(model.state_dict(), preTrained_saveName)
+    torch.save(model.state_dict(), preTrained_saveName+'.pt')
 
     writer.add_scalar("Full_Loss/train", losses_vect[0], epoch)
     writer.add_scalar("Recons_Loss/train", losses_vect[1], epoch)
     writer.add_scalar("KL_Loss/train", losses_vect[2], epoch)
-    print(epoch)
+    print(f'epoch : {epoch}')
     model = model.to(device)
     x_test = x_test.to(device)
     
@@ -183,6 +184,3 @@ for epoch in range(epochs):
 
 writer.flush()
 writer.close()
-
-# Saving Trained model
-torch.save(model.state_dict(), 'Spectral_VAE.pt')
