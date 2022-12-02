@@ -152,6 +152,7 @@ for epoch in range(epochs):
         for j,l in enumerate(losses):
             losses_vect[j].append(l.cpu().detach()/x.size()[0])
     
+    # Saving trained model
     torch.save(model.state_dict(), preTrained_saveName)
 
     writer.add_scalar("Full_Loss/train", losses_vect[0], epoch)
@@ -182,4 +183,6 @@ for epoch in range(epochs):
 
 writer.flush()
 writer.close()
+
+# Saving Trained model
 torch.save(model.state_dict(), 'Spectral_VAE.pt')
