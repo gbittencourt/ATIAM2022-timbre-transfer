@@ -9,7 +9,7 @@ from torch.utils.tensorboard import SummaryWriter
 import os
 
 # Name of the saved trained network
-preTrained_saveName = "spectral_VAE_s4"
+preTrained_saveName = "spectral_VAE_s2"
 writer = SummaryWriter(os.path.join('runs',preTrained_saveName))
 
 
@@ -19,6 +19,7 @@ from src.timbre_transfer.models.Spectral_VAE import SpectralVAE
 
 
 device  = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+print(device)
 
 ## Training parameters
 # Proportion of the train dataset used for training
@@ -27,16 +28,18 @@ train_ratio = 1
 # Number of Epochs
 epochs = 100
 # Learning rate
-lr = 1e-4
+lr = 2e-5
 # Reconstruction Loss (always use reduction='none')
-recons_criterion = torch.nn.MSELoss(reduction = 'none')
-# Beta-VAE Beta coefficient
-beta = 1
+recons_criterion = torch.nn.BCELoss(reduction = 'none')
+# Beta-VAE Beta coefficient and warm up length
+beta_end = 1
+warm_up_length = 20 #epochs
 
 # Dataloaders parameters
-train_batch_size = 256
-valid_batch_size = 16
+train_batch_size = 8
+valid_batch_size = 256
 num_threads = 0
+
 
 ## Model Parameters
 # Dimension of the linear layer
@@ -44,32 +47,35 @@ hidden_dim = 256
 # Dimension of the latent space
 latent_dim = 128
 # Number of filters of the first convolutionnal layer
-base_depth = 128
+base_depth = 64
 # Max number of channels of te convolutionnal layers
 max_depth = 512
 # Number of convolutionnal layers
-n_convLayers = 3
-# Kernel size of convolutionnal layers (recommended : stride*2+1)
-kernel_size = 9
+n_convLayers = 5
+# Kernel size of convolutionnal layers (recommended : stride*2+3)
+kernel_size = 7
 # Stride of convolutionnal layers (recommended : 2 or 4)
-stride = 4
+stride = 2
 # Models returns images of size freqs_dim*len_dim
 freqs_dim = 128
 len_dim = 128
 
 
-AT = AudioTransform(input_freq = 16000, n_fft = 1024, n_mel = 128, stretch_factor=.8)
+AT = AudioTransform(input_freq = 16000, n_fft = 1024, n_mel = freqs_dim, stretch_factor=.8)
 
 ## Loading the NSynth dataset
 train_dataset = NSynthDataset('data/', usage = 'train', select_class='vocal_acoustic', transform=AT)
 valid_dataset = NSynthDataset('data/', usage = 'valid', select_class='vocal_acoustic', transform=AT)
 nb_train = int(train_ratio * len(train_dataset))
+nb_valid = len(valid_dataset)
 print(f"Number of training examples : {nb_train}")
+
+train_dataset, _ = torch.utils.data.dataset.random_split(train_dataset, [nb_train, len(train_dataset)-nb_train])
 
 
 
 train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=train_batch_size, num_workers=num_threads, shuffle=True)
-valid_loader = torch.utils.data.DataLoader(dataset=valid_dataset, batch_size=valid_batch_size, num_workers=num_threads, shuffle=False)
+valid_loader = torch.utils.data.DataLoader(dataset=valid_dataset, batch_size=valid_batch_size, num_workers=num_threads, shuffle=True)
 
 ## Loss Function
 def compute_loss_beta(model, x, beta):
@@ -137,31 +143,46 @@ if os.path.isfile(preTrained_saveName+'.pt'):
 optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
 
-x_test = next(iter(valid_loader))
-x_test = x_test[0]
-x_test_sound = AT.inverse(mel = x_test[0])
-x_test_sound = x_test_sound/torch.max(torch.abs(x_test_sound))
-x_test = x_test.to(device)
-
-
-
+beta = 0
 ## Training
 for epoch in range(epochs):
-    losses_vect = np.zeros(3)
+    model = model.to(device)
+
+    train_losses_vect = np.zeros(3)
+    valid_losses_vect = np.zeros(3)
+
+    beta = min(beta_end, epoch/warm_up_length*beta_end)
     for i, (x,_) in enumerate(iter(train_loader)):
         losses = train_step_beta(model, x, optimizer, beta)
         for j,l in enumerate(losses):
-            losses_vect[j]+=l.cpu().detach().numpy()*x.size()[0]/nb_train
+            train_losses_vect[j]+=l.cpu().detach().numpy()*x.size()[0]/nb_train
     
+    with torch.no_grad():
+        for i , (x,_) in enumerate(iter(valid_loader)):
+            x = x.to(device)
+            losses = compute_loss_beta(model, x, beta)
+            for j,l in enumerate(losses):
+                valid_losses_vect[j]+=l.cpu().detach().numpy()*x.size()[0]/nb_valid
     # Saving trained model
     torch.save(model.state_dict(), preTrained_saveName+'.pt')
 
-    writer.add_scalar("Full_Loss/train", losses_vect[0], epoch)
-    writer.add_scalar("Recons_Loss/train", losses_vect[1], epoch)
-    writer.add_scalar("KL_Loss/train", losses_vect[2], epoch)
+    writer.add_scalars("Full Loss",
+        {'Training': train_losses_vect[0],
+        'Validation': valid_losses_vect[0]}, epoch)
+    writer.add_scalars("Reconstruction Loss",
+        {'Training': train_losses_vect[1],
+        'Validation': valid_losses_vect[1]}, epoch)
+    writer.add_scalars("KL Divergence",
+        {'Training': train_losses_vect[2],
+        'Validation': valid_losses_vect[2]}, epoch)
+    
     print(f'epoch : {epoch}')
-    model = model.to(device)
+
+    x_test = next(iter(valid_loader))
+    x_test = x_test[0]
+    x_test = x_test[0:16]
     x_test = x_test.to(device)
+    model = model.to(device)
     
     y_test = model(x_test)[0]
     
@@ -174,10 +195,14 @@ for epoch in range(epochs):
     if (epoch+1)%20==0:
         print('Exporting sound')
         AT = AT.to('cpu')
+        x_test = x_test.to('cpu')
         y_test = y_test.to('cpu').detach()
+        x_test_sound = AT.inverse(mel = x_test[0])
         y_test_sound = AT.inverse(mel = y_test[0])
-
+        
+        x_test_sound = x_test_sound/torch.max(torch.abs(x_test_sound))
         y_test_sound = y_test_sound/torch.max(torch.abs(y_test_sound))
+
         writer.add_audio("input", x_test_sound, sample_rate=16000, global_step=epoch)
         writer.add_audio("output", y_test_sound, sample_rate=16000, global_step=epoch)
         print('Exported !\n')

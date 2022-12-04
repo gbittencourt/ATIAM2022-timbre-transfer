@@ -7,12 +7,31 @@ import torch
 class NSynthDataset(Dataset):
     """Use with dataloader to load the NSynth dataset
     args :
-        - root_dir [str]: directory where the NSynth dataset is
+        - root_dir [str]: directory where the NSynth folder is.
+            The file architercture should be :
+
+            root_dir/
+                NSynth/
+                    nsynth-test/
+                        examples.json
+                        audio/
+                            "all audio (.wav) used for testing"
+                    nsynth-train/
+                        examples.json
+                        audio/
+                            "all audio (.wav) used for training"
+                    nsynth-valid/
+                        examples.json
+                        audio/
+                            "all audio (.wav) used for validating"
+
         - usage [str] : which dataset is required. usages are : 
             - train
             - test
             - valid
+
         - transform [function] : transforms that are to be applied on the dataset
+        
         - select_class [str] : if you want only one class of sounds. Sound classes are : 
             - bass
             - keyboard
@@ -46,8 +65,9 @@ class NSynthDataset(Dataset):
        
     def __len__(self):
         return len(self.file_names)
-    def __getitem__(self, idx):
+    
 
+    def __getitem__(self, idx):
         audio_path = os.path.join(self.audio_dir, self.file_names[idx])
         label = self.labels[self.file_names[idx][:-4]]['instrument_family']
         

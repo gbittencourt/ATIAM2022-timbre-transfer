@@ -28,10 +28,10 @@ class Spectral_Decoder(nn.Module):
                     kernel_size = kernel_size,
                     padding = kernel_size//2,
                     stride = stride,
-                    output_padding=stride-1
+                    output_padding = stride-1
                     ))
             self.ConvT_layers.append(nn.ReLU())
-        self.ConvT_layers.append(nn.ConvTranspose2d(base_depth, 1, kernel_size = kernel_size, padding = kernel_size//2, stride = stride, output_padding=stride-1))
+        self.ConvT_layers.append(nn.ConvTranspose2d(base_depth, 1, kernel_size = kernel_size, padding = kernel_size//2, stride = stride, output_padding = stride-1))
     def forward(self, x):
         h = self.ReLU(self.Lin1(x))
         h = self.ReLU(self.Lin2(h))
