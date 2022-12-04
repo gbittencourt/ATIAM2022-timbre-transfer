@@ -44,7 +44,8 @@ class NSynthDataset(Dataset):
             - reed
             - string
             - vocal"""
-    def __init__(self, root_dir, usage = 'train', transform = None, select_class = None):
+    
+    def __init__(self, root_dir : str, usage = 'train', transform = None, select_class = None):
         self.root_dir = root_dir
         train_valid_test = {
             'train' : 'NSynth/nsynth-train',
@@ -67,7 +68,7 @@ class NSynthDataset(Dataset):
         return len(self.file_names)
     
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx : int):
         audio_path = os.path.join(self.audio_dir, self.file_names[idx])
         label = self.labels[self.file_names[idx][:-4]]['instrument_family']
         
