@@ -25,13 +25,13 @@ Dataset files hierarchy (here, the root_dir is named "data", as shown on the Pyt
         - nsynth-test/
             - examples.json
             - audio/
-                - All audio (.wav) used for testing
+                - All audio files (.wav) used for testing
         - nsynth-train/
             - examples.json
             - audio/
-                - All audio (.wav) used for training
+                - All audio files (.wav) used for training
         - nsynth-valid/
             - examples.json
             - audio/
-                - All audio (.wav) used for validating
+                - All audio files (.wav) used for validating
 ***

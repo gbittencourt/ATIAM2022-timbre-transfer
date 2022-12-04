@@ -21,6 +21,7 @@ from torch.utils.tensorboard import SummaryWriter
 preTrained_loadName = "spectral_VAE_s4_latent_dim_32_retrained"
 preTrained_saveName = "spectral_VAE_s4_latent_dim_32_retrained_v2"
 
+
 ## Training parameters
 # Proportion of the train dataset used for training
 train_ratio = 1
