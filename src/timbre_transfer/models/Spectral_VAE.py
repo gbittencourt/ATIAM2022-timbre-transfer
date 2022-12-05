@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-
+import numpy as np
 class AE(nn.Module):
     def __init__(self, encoder, decoder, encoding_dim):
         super(AE, self).__init__()
@@ -49,3 +49,24 @@ class SpectralVAE(AE):
         z = z_params[0] + torch.randn(self.latent_dims).to(device)*torch.square(z_params[1])
         kl_div = (1 + torch.log(torch.square(z_params[1])) - torch.square(z_params[0]) - torch.square(z_params[1]))/2
         return z, kl_div
+
+def latentInterpolation(model,x1,x2, position : int, mode = 'linear'):
+    """Finds a point between to samples in the latent space
+    args :
+        - model : VAE model
+        - x1, x2 : samples between which you want to interpolate
+        - position : 0 - x1, 1 -> x2
+        - mode : which interpolation mode you want to use. Interpolation modes :
+            - 'linear'
+            - 'spherical' - not implemented"""
+    # Encoding to get both mu
+    mu1,eps1 = model.encode(x1)
+    mu2,eps2 = model.encode(x2)
+    # Decoding
+    if mode == 'linear':
+        y = model.decode(mu2*position + mu1*(1-position))
+    if mode == 'spherical':
+        r1 = torch.sqrt(torch.sum(torch.square(mu1)))
+        r2 = torch.sqrt(torch.sum(torch.square(mu2)))
+        phi1 = torch.zeros()
+    return y

@@ -45,7 +45,7 @@ class NSynthDataset(Dataset):
             - string
             - vocal"""
     
-    def __init__(self, root_dir : str, usage = 'train', transform = None, select_class = None):
+    def __init__(self, root_dir : str, usage = 'train', transform = None, filter_key = None):
         self.root_dir = root_dir
         train_valid_test = {
             'train' : 'NSynth/nsynth-train',
@@ -57,8 +57,8 @@ class NSynthDataset(Dataset):
         self.audio_dir = os.path.join(self.set_dir, 'audio')
         self.file_names = os.listdir(self.audio_dir)
         self.transform = transform
-        if select_class != None:
-            self.file_names = list(filter(lambda x: select_class in x, self.file_names))
+        if filter_key != None:
+            self.file_names = list(filter(lambda x: filter_key in x, self.file_names))
         
         self.labels = json.load(open(os.path.join(self.set_dir,'examples.json')))
         

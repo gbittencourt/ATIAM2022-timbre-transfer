@@ -26,7 +26,7 @@ class Params(BaseModel):
     n_fft: int = 1024
     hop_length: int = 256
     type_transform: str = "dgt"  # "stft" or "dgt"
-    inversion_mode: str = "pghi"  # "keep_input" or "random" or "griffin_lim" or "pghi"
+    inversion_mode: str = "griffin_lim"  # "keep_input" or "random" or "griffin_lim" or "pghi"
 
     # model params
     latent_size: int = 16

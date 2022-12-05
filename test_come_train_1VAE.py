@@ -70,8 +70,8 @@ print(device)
 AT = AudioTransform(input_freq = 16000, n_fft = 1024, n_mel = freqs_dim, stretch_factor=.8)
 
 ## Loading the NSynth dataset
-train_dataset = NSynthDataset('data/', usage = 'train', select_class='vocal_acoustic', transform=AT)
-valid_dataset = NSynthDataset('data/', usage = 'valid', select_class='vocal_acoustic', transform=AT)
+train_dataset = NSynthDataset('data/', usage = 'train', filter_key='vocal_acoustic', transform=AT)
+valid_dataset = NSynthDataset('data/', usage = 'valid', filter_key='vocal_acoustic', transform=AT)
 nb_train = int(train_ratio * len(train_dataset))
 nb_valid = len(valid_dataset)
 print(f"Number of training examples : {nb_train}")
