@@ -1,0 +1,33 @@
+# data params
+data_dir: #FILLME
+out_dir: #FILLME
+n_signal: 262144
+truncate: False
+batch: 8
+n_workers: 2
+
+# signal features
+sr: 44100
+n_fft: 1024
+hop_length: 256
+type_transform: stft  # "stft" or "dgt"
+inversion_mode: keep_input  # "keep_input" or "random" or "griffin_lim" or "pghi"
+
+# model params
+latent_size: 16
+hidden_dim: 32
+ratios:
+  - 4
+  - 2
+lr: 0.0001
+beta: 1
+warmup: 8000
+cached: False
+
+# train params
+models_dir: #FILLME
+name: vae
+max_steps: 10000
+val_steps: 1000
+n_ex: 2
+ckpt: null
