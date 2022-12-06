@@ -17,7 +17,7 @@ from src.timbre_transfer.models.Spectral_VAE import SpectralVAE
 
 from torch.utils.tensorboard import SummaryWriter
 
-dataset_folder = "../data"
+dataset_folder = "../../data"
 
 preTrained_loadNames = "exp_2VAs/exp1"
 preTrained_saveName = ["exp_2VAs/exp1_vocal", "exp_2VAs/exp1_string"]
