@@ -17,6 +17,7 @@ from src.timbre_transfer.models.Spectral_VAE import SpectralVAE
 
 from torch.utils.tensorboard import SummaryWriter
 
+dataset_folder = "../data"
 
 preTrained_loadNames = "exp_2VAs/exp1"
 preTrained_saveName = ["exp_2VAs/exp1_vocal", "exp_2VAs/exp1_string"]
@@ -72,11 +73,10 @@ print(device)
 AT = AudioTransform(input_freq = 16000, n_fft = 1024, n_mel = freqs_dim, stretch_factor=.8)
 
 ## Loading the NSynth dataset
-train_dataset1 = NSynthDataset('data/', usage = 'train', filter_key='vocal_acoustic', transform=AT)
-valid_dataset1 = NSynthDataset('data/', usage = 'valid', filter_key='vocal_acoustic', transform=AT)
-
-train_dataset2 = NSynthDataset('data/', usage = 'train', filter_key='string_acoustic', transform=AT)
-valid_dataset2 = NSynthDataset('data/', usage = 'valid', filter_key='string_acoustic', transform=AT)
+train_dataset1 = NSynthDataset(dataset_folder, usage = 'train', filter_key='vocal_acoustic', transform=AT)
+valid_dataset1 = NSynthDataset(dataset_folder, usage = 'valid', filter_key='vocal_acoustic', transform=AT)
+train_dataset2 = NSynthDataset(dataset_folder, usage = 'train', filter_key='string_acoustic', transform=AT)
+valid_dataset2 = NSynthDataset(dataset_folder, usage = 'valid', filter_key='string_acoustic', transform=AT)
 
 nb_train = min(int(train_ratio * len(train_dataset1)), int(train_ratio * len(train_dataset2)))
 nb_valid1, nb_valid2 = len(valid_dataset1), len(valid_dataset2)
