@@ -20,7 +20,7 @@ train_dataset = NSynthDataset(root_dir = root_dir, usage = 'train', select_class
 Dataset files hierarchy (here, the root_dir is named "data", as shown on the Python example above) :
 
 - data/
-    - NSynth/
+    - nsynth/
         - nsynth-test/
             - examples.json
             - audio/
@@ -34,3 +34,5 @@ Dataset files hierarchy (here, the root_dir is named "data", as shown on the Pyt
             - audio/
                 - All audio files (.wav) used for validating
 ***
+
+`source /miniconda/bin/activate`

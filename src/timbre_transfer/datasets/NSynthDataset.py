@@ -48,9 +48,9 @@ class NSynthDataset(Dataset):
     def __init__(self, root_dir : str, usage = 'train', transform = None, filter_key = None):
         self.root_dir = root_dir
         train_valid_test = {
-            'train' : 'NSynth/nsynth-train',
-            'test' :  'NSynth/nsynth-test',
-            'valid' : 'NSynth/nsynth-valid',
+            'train' : 'nsynth/nsynth-train',
+            'test' :  'nsynth/nsynth-test',
+            'valid' : 'nsynth/nsynth-valid',
         }
         
         self.set_dir = os.path.join(self.root_dir, train_valid_test[usage])
