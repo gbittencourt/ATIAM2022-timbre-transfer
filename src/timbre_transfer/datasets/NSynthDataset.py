@@ -43,9 +43,16 @@ class NSynthDataset(Dataset):
             - organ
             - reed
             - string
-            - vocal"""
+            - vocal
+        
+        - normalization [float]:
+            If None, no normalization is applied
+            If float, samples x are normalised by normalisation (x = x/normalization)
+
+            For training, you should run through the dataset once to find the maximum value, the normalise by this value during the training process
+            """
     
-    def __init__(self, root_dir : str, usage = 'train', transform = None, filter_key = None):
+    def __init__(self, root_dir : str, usage = 'train', transform = None, filter_key = None, normalization = None):
         self.root_dir = root_dir
         train_valid_test = {
             'train' : 'nsynth/nsynth-train',
@@ -57,6 +64,7 @@ class NSynthDataset(Dataset):
         self.audio_dir = os.path.join(self.set_dir, 'audio')
         self.file_names = os.listdir(self.audio_dir)
         self.transform = transform
+        self.normalization = normalization
         if filter_key != None:
             self.file_names = list(filter(lambda x: filter_key in x, self.file_names))
         
@@ -78,5 +86,6 @@ class NSynthDataset(Dataset):
         else:
             output = self.transform(torch.Tensor(waveform))
         
-        output = output/torch.max(output)
+        if self.normalization !=None:
+            output = output/self.normalization
         return output, label

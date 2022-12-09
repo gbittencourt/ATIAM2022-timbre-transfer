@@ -17,9 +17,10 @@ from src.timbre_transfer.models.Spectral_VAE import SpectralVAE
 
 from torch.utils.tensorboard import SummaryWriter
 
+dataset_folder = "data"
 
 preTrained_loadNames = "exp_2VAs/exp1"
-preTrained_saveName = ["exp_2VAs/exp1_vocal", "exp_2VAs/exp1_string"]
+preTrained_saveName = ["exp_2VAs/exp1_vocal_BCE", "exp_2VAs/exp1_string_BCE"]
 
 
 ## Name of the saved trained network
@@ -50,7 +51,7 @@ hidden_dim = 256
 # Dimension of the latent space
 latent_dim = 8
 # Number of filters of the first convolutionnal layer
-base_depth = 128
+base_depth = 64
 # Max number of channels of te convolutionnal layers
 max_depth = 512
 # Number of convolutionnal layers
@@ -63,7 +64,7 @@ stride = 4
 freqs_dim = 128
 len_dim = 128
 
-writer = SummaryWriter(os.path.join('runs','test_2VAEs'))
+writer = SummaryWriter(os.path.join('runs','test_2VAEs_BCE'))
 
 device  = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 #device = 'cpu'
@@ -72,11 +73,10 @@ print(device)
 AT = AudioTransform(input_freq = 16000, n_fft = 1024, n_mel = freqs_dim, stretch_factor=.8)
 
 ## Loading the NSynth dataset
-train_dataset1 = NSynthDataset('data/', usage = 'train', filter_key='vocal_acoustic', transform=AT)
-valid_dataset1 = NSynthDataset('data/', usage = 'valid', filter_key='vocal_acoustic', transform=AT)
-
-train_dataset2 = NSynthDataset('data/', usage = 'train', filter_key='string_acoustic', transform=AT)
-valid_dataset2 = NSynthDataset('data/', usage = 'valid', filter_key='string_acoustic', transform=AT)
+train_dataset1 = NSynthDataset(dataset_folder, usage = 'train', filter_key='vocal_acoustic', transform=AT, normalization=16.2965)
+valid_dataset1 = NSynthDataset(dataset_folder, usage = 'valid', filter_key='vocal_acoustic', transform=AT, normalization=16.2965)
+train_dataset2 = NSynthDataset(dataset_folder, usage = 'train', filter_key='string_acoustic', transform=AT, normalization=16.2965)
+valid_dataset2 = NSynthDataset(dataset_folder, usage = 'valid', filter_key='string_acoustic', transform=AT, normalization=16.2965)
 
 nb_train = min(int(train_ratio * len(train_dataset1)), int(train_ratio * len(train_dataset2)))
 nb_valid1, nb_valid2 = len(valid_dataset1), len(valid_dataset2)
@@ -242,7 +242,8 @@ for epoch in range(epochs):
         loss_dict['Training, model ' + str(modelIdx)] = train_losses[modelIdx][2]
         loss_dict['Validation, model ' + str(modelIdx)] = valid_losses[modelIdx][2]
     writer.add_scalars("KL Divergence",loss_dict, epoch)
-    
+
+    print(f'epoch : {epoch}, beta  : {round(beta,2)}')
     
     for modelIdx in range(len(models)):
     
@@ -260,6 +261,8 @@ for epoch in range(epochs):
         writer.add_image("model " + str(modelIdx) + ", input image", x_grid, epoch)
         writer.add_image("model " + str(modelIdx) + ", output image", y_grid, epoch)
 
+    
+
         if (epoch+1)%5==0:
             print('Exporting sound')
             AT = AT.to('cpu')
@@ -274,9 +277,5 @@ for epoch in range(epochs):
             writer.add_audio("model " + str(modelIdx) + ", input audio", x_test_sound, sample_rate=16000, global_step=epoch)
             writer.add_audio("model " + str(modelIdx) + ", output audio", y_test_sound, sample_rate=16000, global_step=epoch)
             print('Exported !\n')
-    
-    
-    print(f'epoch : {epoch}')
-
 writer.flush()
 writer.close()

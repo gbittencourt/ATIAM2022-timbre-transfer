@@ -34,7 +34,7 @@ lr = 1e-4
 recons_criterion = torch.nn.BCELoss(reduction = 'none')
 # Beta-VAE Beta coefficient and warm up length
 beta_end = 1
-warm_up_length = 1 #epochs
+warm_up_length = 20 #epochs
 
 # Dataloaders parameters
 train_batch_size = 4
@@ -49,7 +49,7 @@ hidden_dim = 256
 latent_dim = 32
 # Number of filters of the first convolutionnal layer
 base_depth = 128
-# Max number of channels of te convolutionnal layers
+# Max number of channels of the convolutionnal layers
 max_depth = 512
 # Number of convolutionnal layers
 n_convLayers = 3
@@ -57,6 +57,7 @@ n_convLayers = 3
 kernel_size = 11
 # Stride of convolutionnal layers (recommended : 2 or 4)
 stride = 4
+
 # Models returns images of size freqs_dim*len_dim
 freqs_dim = 128
 len_dim = 128
@@ -72,6 +73,7 @@ AT = AudioTransform(input_freq = 16000, n_fft = 1024, n_mel = freqs_dim, stretch
 ## Loading the NSynth dataset
 train_dataset = NSynthDataset('data/', usage = 'train', filter_key='vocal_acoustic', transform=AT)
 valid_dataset = NSynthDataset('data/', usage = 'valid', filter_key='vocal_acoustic', transform=AT)
+
 nb_train = int(train_ratio * len(train_dataset))
 nb_valid = len(valid_dataset)
 print(f"Number of training examples : {nb_train}")
