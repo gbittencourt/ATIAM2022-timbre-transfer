@@ -19,8 +19,9 @@ from torch.utils.tensorboard import SummaryWriter
 
 dataset_folder = "data"
 
-preTrained_loadNames = "exp_2VAs/exp1"
-preTrained_saveName = ["exp_2VAs/exp1_vocal_BCE", "exp_2VAs/exp1_string_BCE"]
+preTrained_loadNames = ["exp_2VAs/exp1_vocal_MSE", "exp_2VAs/exp1_string_MSE"]
+preTrained_saveName = ["exp_2VAs/exp1_vocal_MSE", "exp_2VAs/exp1_string_MSE"]
+writer = SummaryWriter(os.path.join('runs','test_2VAEs_MSE'))
 
 
 ## Name of the saved trained network
@@ -30,17 +31,18 @@ preTrained_saveName = ["exp_2VAs/exp1_vocal_BCE", "exp_2VAs/exp1_string_BCE"]
 train_ratio = 1
 
 # Number of Epochs
-epochs = 40
+epochs = 400
 # Learning rate
 lr = 1e-4
 # Reconstruction Loss (always use reduction='none')
-recons_criterion = torch.nn.BCELoss(reduction = 'none')
+recons_criterion = torch.nn.MSELoss(reduction = 'none')
+
 # Beta-VAE Beta coefficient and warm up length
 beta_end = 1
-warm_up_length = 20 #epochs
+warm_up_length = 200 #epochs
 
 # Dataloaders parameters
-train_batch_size = 4
+train_batch_size = 8
 valid_batch_size = 1024
 num_threads = 0
 
@@ -61,10 +63,9 @@ kernel_size = 11
 # Stride of convolutionnal layers (recommended : 2 or 4)
 stride = 4
 # Models returns images of size freqs_dim*len_dim
-freqs_dim = 128
-len_dim = 128
+freqs_dim = 64
+len_dim = 64
 
-writer = SummaryWriter(os.path.join('runs','test_2VAEs_BCE'))
 
 device  = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 #device = 'cpu'
@@ -113,7 +114,7 @@ def compute_loss_beta(model, x, beta):
     return full_loss, recons_loss, -kl_loss
 
 ## Train step
-def train_step_beta(model, x, optimizer, beta):
+def train_step(model, x, optimizer, beta):
     # Compute the loss.
     full_loss, recons_loss, kl_loss = compute_loss_beta(model, x, beta)
     # Before the backward pass, zero all of the network gradients
@@ -163,9 +164,11 @@ model1 = SpectralVAE(encoder, decoder1, freqs_dim = freqs_dim, len_dim = len_dim
 model2 = SpectralVAE(encoder, decoder2, freqs_dim = freqs_dim, len_dim = len_dim, encoding_dim = hidden_dim, latent_dim = latent_dim)
 
 models = [model1, model2]
+
 ## Loading pre-trained model
-#if os.path.isfile(preTrained_loadName+'.pt'):
-#    model1.load_state_dict(torch.load('./'+preTrained_loadName+'.pt'))
+if os.path.isfile(preTrained_loadNames[0]+'.pt') and os.path.isfile(preTrained_loadNames[1]+'.pt'):
+    model1.load_state_dict(torch.load('./'+preTrained_loadNames[0]+'.pt'))
+    model2.load_state_dict(torch.load('./'+preTrained_loadNames[1]+'.pt'))
 
 # Optimizer
 optimizer1 = torch.optim.Adam(model1.parameters(), lr=lr)
@@ -205,7 +208,7 @@ for epoch in range(epochs):
             x = next(iter_loaders[modelIdx])[0].to(device)
             model = models[modelIdx]
             optimizer = optimizers[modelIdx]
-            losses = train_step_beta(model, x, optimizer, beta)
+            losses = train_step(model, x, optimizer, beta)
             for j,l in enumerate(losses):
                 train_losses[modelIdx][j]+=l.cpu().detach().numpy()*x.size()[0]/nb_train
     
@@ -263,7 +266,7 @@ for epoch in range(epochs):
 
     
 
-        if (epoch+1)%5==0:
+        if (epoch+1)%20==0:
             print('Exporting sound')
             AT = AT.to('cpu')
             x_test = x_test.to('cpu')

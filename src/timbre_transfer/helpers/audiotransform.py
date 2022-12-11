@@ -36,12 +36,23 @@ class AudioTransform(torch.nn.Module):
         mel = np.log(1+mel)/np.log(2)
 
         s = mel.size()
-        if s[2]%s[1]!=0:
-            new_mel = torch.zeros((s[0], s[1], s[1]))
-            new_mel[:,:,:s[2]] = mel
+        #s[0] : 1
+        #s[1] : mels
+        #s[2] : temporel
+        if s[2]!=s[1]:
+            n = s[2]//s[1]+1
+            if n ==1:
+                new_mel = torch.zeros((s[0], s[1], s[1]))
+                new_mel[:,:,:s[2]] = mel
+            else:
+                new_mel = torch.zeros((n, s[0], s[1], s[1]))
+                for i in range(n-1):
+                    new_mel[i,:,:,:] = mel[:,:,i*s[1]:(i+1)*s[1]]
+                new_mel[n-1,:,:,:s[2]-(n-1)*s[1]] = mel[:,:,(n-1)*s[1]:]
             mel = new_mel
+        print(mel.size())
         return mel
-    
+
     def inverse(self,mel : torch.Tensor):
         inv = np.exp(mel*np.log(2))-1
         inv = self.inverse_melscale(inv)
