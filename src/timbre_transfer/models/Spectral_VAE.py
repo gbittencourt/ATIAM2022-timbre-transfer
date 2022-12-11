@@ -55,7 +55,7 @@ class SpectralVAE(AE):
     
     def latent(self, z_params):
         z = z_params[0]+torch.randn_like(z_params[0])*z_params[1]
-        kl_div = (1 + torch.log(torch.square(z_params[1])) - torch.square(z_params[0]) - torch.square(z_params[1]))/2
+        kl_div = -(1 + torch.log(torch.square(z_params[1])) - torch.square(z_params[0]) - torch.square(z_params[1]))/2
         return z, kl_div
 
 
