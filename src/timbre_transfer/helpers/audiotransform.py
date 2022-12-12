@@ -33,7 +33,7 @@ class AudioTransform(torch.nn.Module):
         # Convert to mel-scale
         mel = self.mel_scale(spec)
         
-        mel = np.log(1+mel)/np.log(2)
+        mel = np.log(1+mel)
 
         s = mel.size()
         #s[0] : 1
@@ -50,11 +50,10 @@ class AudioTransform(torch.nn.Module):
                     new_mel[i,:,:,:] = mel[:,:,i*s[1]:(i+1)*s[1]]
                 new_mel[n-1,:,:,:s[2]-(n-1)*s[1]] = mel[:,:,(n-1)*s[1]:]
             mel = new_mel
-        print(mel.size())
         return mel
 
     def inverse(self,mel : torch.Tensor):
-        inv = np.exp(mel*np.log(2))-1
+        inv = np.exp(mel)-1
         inv = self.inverse_melscale(inv)
         inv = self.griffin(inv)
         

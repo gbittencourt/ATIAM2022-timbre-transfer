@@ -1,9 +1,9 @@
 ## Loss Function
 import torch.nn
 
-recons_criterion = torch.nn.MSELoss(reducion = 'none')
+recons_criterion = torch.nn.MSELoss(reduction = 'none')
 
-def compute_lossVAE(model, x, beta):
+def computeLoss_VAE(model, x, beta):
     x_hat, kl_div = model(x)
     recons_loss = recons_criterion(x_hat,x).mean(0).sum()
     
@@ -16,9 +16,9 @@ def compute_lossVAE(model, x, beta):
     return full_loss, recons_loss, kl_loss
 
 ## Train step
-def train_step_betaVAE(model, x, optimizer, beta):
+def trainStep_VAE(model, x, optimizer, beta):
     # Compute the loss.
-    full_loss, recons_loss, kl_loss = compute_loss_beta(model, x, beta)
+    full_loss, recons_loss, kl_loss = computeLoss_VAE(model, x, beta)
     # Before the backward pass, zero all of the network gradients
     optimizer.zero_grad()
     # Backward pass: compute gradient of the loss with respect to parameters

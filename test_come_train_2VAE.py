@@ -14,7 +14,7 @@ from src.timbre_transfer.helpers.audiotransform import AudioTransform
 from src.timbre_transfer.models.network.Spectral_Decoder import Spectral_Decoder
 from src.timbre_transfer.models.network.Spectral_Encoder import Spectral_Encoder
 from src.timbre_transfer.models.Spectral_VAE import SpectralVAE
-from src.timbre_transfer.train_vae import train_step_betaVAE
+from src.timbre_transfer.train_vae import trainStep_betaVAE, computeLoss_VAE
 from torch.utils.tensorboard import SummaryWriter
 
 dataset_folder = "data"
@@ -185,7 +185,7 @@ for epoch in range(epochs):
             x = next(iter_loaders[modelIdx])[0].to(device)
             model = models[modelIdx]
             optimizer = optimizers[modelIdx]
-            losses = train_step_betaVAE(model, x, optimizer, beta)
+            losses = trainStep_betaVAE(model, x, optimizer, beta)
             for j,l in enumerate(losses):
                 train_losses[modelIdx][j]+=l.cpu().detach().numpy()*x.size()[0]/nb_train
     
@@ -201,7 +201,7 @@ for epoch in range(epochs):
 
             for i , (x,_) in enumerate(iter(valid_loader)):
                 x = x.to(device)
-                losses = compute_loss_beta(model1, x, beta)
+                losses = computeLoss_VAE(model1, x, beta)
                 for j,l in enumerate(losses):
                     valid_losses[modelIdx][j]+=l.cpu().detach().numpy()*x.size()[0]/nb_valids[modelIdx]
     #torch.save(model1.state_dict(), preTrained_saveName+'.pt')
