@@ -13,10 +13,10 @@ def computeLoss_CC(VAE1, VAE2, x1, x2, beta):
     del(y1)
 
     #Reconstruction Loss
-    recons_loss = recons_criterion(x1_hat,x1).mean(0).sum() + recons_criterion(x2_hat,x2).mean(0).sum()
+    recons_loss = (recons_criterion(x1_hat,x1).mean(0).sum() + recons_criterion(x2_hat,x2).mean(0).sum())/2
     
     #Kullback-Liebler divergence
-    kl_loss = kl_div11.mean(0).sum() + kl_div12.mean(0).sum() + kl_div21.mean(0).sum() + kl_div22.mean(0).sum()
+    kl_loss = (kl_div11.mean(0).sum() + kl_div12.mean(0).sum() + kl_div21.mean(0).sum() + kl_div22.mean(0).sum())/4
     if beta==0:
         full_loss = recons_loss
     else:
@@ -25,13 +25,15 @@ def computeLoss_CC(VAE1, VAE2, x1, x2, beta):
     return full_loss, recons_loss, kl_loss
 
 ## Train step
-def trainStep_CC(VAE1, VAE2, x1, x2, beta, optimizer):
+def trainStep_CC(VAE1, VAE2, x1, x2,optimizer1, optimizer2, beta):
     # Compute the loss.
     full_loss, recons_loss, kl_loss = computeLoss_CC(VAE1, VAE2, x1, x2, beta)
     # Before the backward pass, zero all of the network gradients
-    optimizer.zero_grad()
+    optimizer1.zero_grad()
+    optimizer2.zero_grad()
     # Backward pass: compute gradient of the loss with respect to parameters
     full_loss.backward()
     # Calling the step function to update the parameters
-    optimizer.step()
+    optimizer1.step()
+    optimizer2.step()
     return full_loss, recons_loss, kl_loss

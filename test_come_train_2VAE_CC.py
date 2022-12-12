@@ -171,16 +171,31 @@ for epoch in range(epochs):
     iter_loaders = []
 
     for i, (x1, x2) in enumerate(iter(train_loader)):
-        
+        full_loss = 0
         x1 = x1.to(device)
         x2 = x2.to(device)
 
-        # VAEs train steps
-        l = trainStep_VAE(model1, x1, optimizer1, beta)[0]
-        train_loss_VAE += l.cpu().detach().numpy()*x1.size()[0]/nb_train
+        optimizer1.zero_grad()
+        optimizer2.zero_grad()
 
-        l = trainStep_VAE(model2, x2, optimizer2, beta)[0]
-        train_loss_VAE += l.cpu().detach().numpy()*x2.size()[0]/nb_train
+        # VAEs train steps
+        l = computeLoss_VAE(model1, x1, beta)
+        full_loss+=l[0]
+        train_loss_VAE += l[0].cpu().detach().numpy()*x1.size()[0]/nb_train
+
+        l = computeLoss_VAE(model2, x2, beta)
+        full_loss+=l[0]
+        train_loss_VAE += l[0].cpu().detach().numpy()*x2.size()[0]/nb_train
+
+        l = computeLoss_CC(model1, model2, x1, x2, beta)
+        full_loss+=l[0]
+        train_loss_CC += l[0].cpu().detach().numpy()*x2.size()[0]/nb_train
+        
+        full_loss.backward()
+
+        optimizer1.step()
+        optimizer2.step()
+
 
     # Saving the trained model
     torch.save(model1.state_dict(), preTrained_saveName[0]+'.pt')
@@ -197,11 +212,19 @@ for epoch in range(epochs):
             l = computeLoss_VAE(model2, x2, beta)[0]
             valid_loss_VAE += l.cpu().detach().numpy()*x2.size()[0]/nb_valid
 
+            l = computeLoss_CC(model1, model2, x1, x2, beta)[0]
+            valid_loss_CC += l.cpu().detach().numpy()*x2.size()[0]/nb_valid
+
+
+
     #torch.save(model1.state_dict(), preTrained_saveName+'.pt')
     loss_dict = {}
     loss_dict['Training, VAE'] = train_loss_VAE
     loss_dict['Validation, VAE'] = valid_loss_VAE
-    writer.add_scalars("Full Loss",loss_dict, epoch)
+    loss_dict['Training, CC'] = train_loss_CC
+    loss_dict['Validation, CC'] = valid_loss_CC
+
+    writer.add_scalars("Losses ",loss_dict, epoch)
 
     print(f'epoch : {epoch}, beta  : {round(beta,2)}')
     

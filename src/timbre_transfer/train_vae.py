@@ -8,6 +8,7 @@ def computeLoss_VAE(model, x, beta):
     recons_loss = recons_criterion(x_hat,x).mean(0).sum()
     
     kl_loss = kl_div.mean(0).sum()
+
     if beta==0:
         full_loss = recons_loss
     else:

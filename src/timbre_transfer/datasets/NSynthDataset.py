@@ -51,6 +51,9 @@ class NSynthDataset(Dataset):
             If float, samples x are normalised by normalisation (x = x/normalization)
 
             For training, you should run through the dataset once to find the maximum value, the normalise by this value during the training process
+    outputs:
+        - x : sample
+        - label : labem
             """
     
     def __init__(self, root_dir : str, usage = 'train', transform = None, filter_key = None, normalization = None):
