@@ -55,7 +55,9 @@ class SpectralVAE_GAN(AE):
         z_tilde, kl_div = self.latent(z_params)
         # Decode the samples
         x_tilde = self.decode(z_tilde)
-        return x_tilde.reshape(-1, 1, self.freqs_dim, self.len_dim), kl_div
+        # Pass them through the discriminator
+        result = self.discriminate(x_tilde)
+        return result, x_tilde.reshape(-1, 1, self.freqs_dim, self.len_dim), kl_div
     
     def latent(self, z_params):
         z = z_params[0]+torch.randn_like(z_params[0])*z_params[1]
