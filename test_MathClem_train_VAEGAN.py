@@ -13,14 +13,15 @@ from src.timbre_transfer.helpers.audiotransform import AudioTransform
 
 from src.timbre_transfer.models.network.Spectral_Decoder import Spectral_Decoder
 from src.timbre_transfer.models.network.Spectral_Encoder import Spectral_Encoder
-from src.timbre_transfer.models.Spectral_VAE import SpectralVAE
-from src.timbre_transfer.train_vae import trainStep_betaVAE, computeLoss_VAE
+from src.timbre_transfer.models.network.Spectral_Discriminator import Spectral_Discriminator
+from src.timbre_transfer.models.VAE_GAN import SpectralVAE_GAN
+from src.timbre_transfer.train_VAE_GAN import trainStep_VAE_GAN ,  computeLoss
 from torch.utils.tensorboard import SummaryWriter
 
 dataset_folder = "data"
 
-preTrained_loadNames = ["exp_VAEGAN/exp1", "exp_VAEGAN/exp1"]
-preTrained_saveName = ["exp_VAEGAN/exp1", "exp_VAEGAN/exp1"]
+preTrained_loadName = "exp_VAEGAN/exp1"
+preTrained_saveName = "exp_VAEGAN/exp1"
 writer = SummaryWriter(os.path.join('runs','test_VAEGAN'))
 
 ## Name of the saved trained network
@@ -117,4 +118,79 @@ discriminator = Spectral_Discriminator(
     max_depth = max_depth,
     stride = stride)
 
+model = SpectralVAE_GAN(encoder, decoder, discriminator, freqs_dim = freqs_dim, len_dim = len_dim, encoding_dim = hidden_dim, latent_dim = latent_dim)
 
+## Loading pre-trained model
+if os.path.isfile(preTrained_loadName+'.pt'):
+    model.load_state_dict(torch.load('./'+preTrained_loadName+'.pt'))
+
+optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+
+beta = 0
+## Training
+for epoch in range(epochs):
+    model = model.to(device)
+
+    train_losses_vect = np.zeros(4)
+    valid_losses_vect = np.zeros(4)
+
+    beta = min(beta_end, epoch/warm_up_length*beta_end)
+    for i, (x,_) in enumerate(iter(train_loader)):
+        losses = trainStep_VAE_GAN(model, discriminator, x, optimizer, beta)
+        for j,l in enumerate(losses):
+            train_losses_vect[j]+=l.cpu().detach().numpy()*x.size()[0]/nb_train
+    
+    with torch.no_grad():
+        for i , (x,_) in enumerate(iter(valid_loader)):
+            x = x.to(device)
+            losses = computeLoss(model, discriminator, x, beta)
+            for j,l in enumerate(losses):
+                valid_losses_vect[j]+=l.cpu().detach().numpy()*x.size()[0]/nb_valid
+    # Saving trained model
+    torch.save(model.state_dict(), preTrained_saveName+'.pt')
+
+    writer.add_scalars("Full Loss",
+        {'Training': train_losses_vect[0],
+        'Validation': valid_losses_vect[0]}, epoch)
+    writer.add_scalars("Reconstruction Loss",
+        {'Training': train_losses_vect[1],
+        'Validation': valid_losses_vect[1]}, epoch)
+    writer.add_scalars("KL Divergence",
+        {'Training': train_losses_vect[2],
+        'Validation': valid_losses_vect[2]}, epoch)
+    writer.add_scalars("Discriminator Loss",
+        {'Training': train_losses_vect[3],
+        'Validation': valid_losses_vect[3]}, epoch)
+    print(f'epoch : {epoch}')
+
+    x_test = next(iter(valid_loader))
+    x_test = x_test[0]
+    x_test = x_test[0:16]
+    x_test = x_test.to(device)
+    model = model.to(device)
+    
+    y_test = model(x_test)[0]
+    
+    x_grid = torchvision.utils.make_grid(x_test)
+    y_grid = torchvision.utils.make_grid(y_test/torch.max(y_test))
+
+    writer.add_image("input_image",x_grid, epoch)
+    writer.add_image("output_image",y_grid, epoch)
+    
+    if (epoch+1)%20==0:
+        print('Exporting sound')
+        AT = AT.to('cpu')
+        x_test = x_test.to('cpu')
+        y_test = y_test.to('cpu').detach()
+        x_test_sound = AT.inverse(mel = x_test[0])
+        y_test_sound = AT.inverse(mel = y_test[0])
+        
+        x_test_sound = x_test_sound/torch.max(torch.abs(x_test_sound))
+        y_test_sound = y_test_sound/torch.max(torch.abs(y_test_sound))
+
+        writer.add_audio("input", x_test_sound, sample_rate=16000, global_step=epoch)
+        writer.add_audio("output", y_test_sound, sample_rate=16000, global_step=epoch)
+        print('Exported !\n')
+
+writer.flush()
+writer.close()
