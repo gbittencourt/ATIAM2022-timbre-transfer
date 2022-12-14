@@ -31,14 +31,15 @@ class SpectralVAE(AE):
         self.latent_dims = latent_dim
         self.freqs_dim = freqs_dim
         self.len_dim = len_dim
-
-        self.mu = nn.Linear(self.encoding_dims, self.latent_dims)
-        self.sigma = nn.Sequential(nn.Linear(self.encoding_dims, self.latent_dims), nn.Softplus())
+        self.mu_sigma = nn.Linear(self.encoding_dims, 2*self.latent_dims)
+        self.Softplus = nn.Softplus()
         
     def encode(self, x):
         encoded = self.encoder(x)
-        mu = self.mu(encoded)
-        sigma = self.sigma(encoded)
+
+        mu_sigma = self.mu_sigma(encoded)
+        mu = mu_sigma[:,:self.latent_dims]
+        sigma = nn.Softplus(mu_sigma[:,self.latent_dims:])
         return mu, sigma
     
     def decode(self, z):
@@ -75,8 +76,8 @@ def latentInterpolation(model, x1, x2, position : int, mode = 'linear'):
     
     with torch.no_grad():
         # Encoding to get both mu
-        mu1,eps1 = model.encode(x1)
-        mu2,eps2 = model.encode(x2)
+        mu1,_ = model.encode(x1)
+        mu2,_ = model.encode(x2)
         # Decoding
         if mode == 'linear':
             # Calculating the coordinates of the interpolated point

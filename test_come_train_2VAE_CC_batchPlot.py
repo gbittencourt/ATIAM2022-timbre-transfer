@@ -23,9 +23,9 @@ from torch.utils.tensorboard import SummaryWriter
 dataset_folder = "data"
 
 
-preTrained_loadNames = ["pretrained/exp_1_VAE_CC/vocal_2", "pretrained/exp_1_VAE_CC/string_2"]
-preTrained_saveName = ["pretrained/exp_1_VAE_CC/vocal_2", "pretrained/exp_1_VAE_CC/string_2"]
-writer = SummaryWriter(os.path.join('runs','test_2VAEs_CC_2'))
+preTrained_loadNames = ["pretrained/exp_1_VAE_CC/vocal_3", "pretrained/exp_1_VAE_CC/string_3"]
+preTrained_saveName = ["pretrained/exp_1_VAE_CC/vocal_3", "pretrained/exp_1_VAE_CC/string_3"]
+writer = SummaryWriter(os.path.join('runs','test_2VAEs_CC_3'))
 
 
 ## Name of the saved trained network
@@ -41,7 +41,7 @@ recons_criterion = torch.nn.MSELoss(reduction = 'none')
 
 # Beta-VAE Beta coefficient and warm up length
 beta_end = 1
-warm_up_length = 15 #epochs
+warm_up_length =15 #epochs
 
 #Lambdas [VAE & CC, Gan, Latent]
 lambdas = [1,0,0]
@@ -198,16 +198,31 @@ for epoch in range(epochs):
         # VAEs train steps
         l = computeLoss_VAE(model1, x1, beta)
         full_loss+=l[0]
+        writer.add_scalars("Batch Train VAE1", {
+            "Reconstruction" : l[1],
+            "Kullback-Liebler Divergence" : l[2]
+        }, global_step = batchIdx
+        )
         for j in range(3):
             train_losses_VAE[j] += l[j].cpu().detach().numpy()*x1.size()[0]/nb_train
 
         l = computeLoss_VAE(model2, x2, beta)
         full_loss+=l[0]
+        writer.add_scalars("Batch Train VAE2", {
+            "Reconstruction" : l[1],
+            "Kullback-Liebler Divergence" : l[2]
+        }, global_step = batchIdx
+        )
         for j in range(3):
             train_losses_VAE[j] += l[j].cpu().detach().numpy()*x1.size()[0]/nb_train
-
+        
         l = computeLoss_CC(model1, model2, x1, x2, beta)
         full_loss+=l[0]
+        writer.add_scalars("Batch Train CC", {
+            "Reconstruction" : l[1],
+            "Kullback-Liebler Divergence" : l[2]
+        }, global_step = batchIdx
+        )
         for j in range(3):
             train_losses_CC[j] += l[j].cpu().detach().numpy()*x1.size()[0]/nb_train
         
@@ -216,6 +231,7 @@ for epoch in range(epochs):
         optimizer1.step()
         optimizer2.step()
         
+
         batchIdx+=1
 
 

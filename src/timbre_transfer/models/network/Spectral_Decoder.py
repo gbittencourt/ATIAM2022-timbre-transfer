@@ -17,10 +17,10 @@ class Spectral_Decoder(nn.Module):
         self.Lin1 = nn.Linear(latent_dim, hidden_dim)
         self.Lin2 = nn.Linear(hidden_dim, self.LastSize*self.LastSize*self.lastLayerChannels)
         self.ReLU = nn.ReLU()
-        self.Sigmoid = nn.Sigmoid()
+        self.Tanh = nn.Tanh()
 
         #Definition of the multiple convolution layers
-        self.ConvT_layers = nn.ModuleList()
+        self.ConvT_layers = nn.Sequential()
         for i in range(0,n_convLayers-1):
             self.ConvT_layers.append(nn.ConvTranspose2d(
                     min(base_depth*np.power(2,n_convLayers-i-1),self.lastLayerChannels),
@@ -42,8 +42,7 @@ class Spectral_Decoder(nn.Module):
             self.LastSize,
             self.LastSize)
 
-        for ConvT_layer in self.ConvT_layers:
-            h = ConvT_layer(h)
-        x_hat = self.Sigmoid(h)
+        h = self.ConvT_layers(h)
+        x_hat = self.Tanh(h)
         #x_hat = h
         return x_hat
