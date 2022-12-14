@@ -21,9 +21,8 @@ class Spectral_Discriminator(nn.Module):
             self.Flatten = nn.Flatten()
 
             #Definition of the multiple convolution layers
-            self.Conv_layers = nn.ModuleList()
-            
-            self.batch_norm = nn.ModuleList()
+            self.Conv_layers = nn.Sequential()
+    
 
             self.Conv_layers.append(
                 nn.Conv2d(
@@ -33,9 +32,11 @@ class Spectral_Discriminator(nn.Module):
                     padding = kernel_size//2,
                     stride = stride))
             
-            self.batch_norm.append(
+            self.Conv_layers.append(
                 nn.BatchNorm2d(base_depth)
             )
+            
+            self.Conv_layers.append(nn.ReLU())
             
             for i in range(1,n_convLayers):
                 self.Conv_layers.append(
@@ -45,9 +46,11 @@ class Spectral_Discriminator(nn.Module):
                         kernel_size = kernel_size,
                         padding = kernel_size//2,
                         stride = stride))
-                self.batch_norm(
+                self.Conv_layers(
                     nn.BatchNorm2d(min(base_depth*np.power(2,i),self.lastLayerChannels))
                 )
+                
+                self.Conv_layers(nn.ReLU())
 
                 
     def forward(self,x):
@@ -55,8 +58,6 @@ class Spectral_Discriminator(nn.Module):
         
         for i,layer in enumerate(self.Conv_layers) :
             h = layer(h)
-            h = self.batch_norm[i](h)
-            h = self.ReLU(h)
         
         h = self.Flatten(h)
         h = self.Lin1(h)
