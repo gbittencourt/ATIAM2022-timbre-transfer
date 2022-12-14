@@ -39,7 +39,7 @@ class SpectralVAE(AE):
 
         mu_sigma = self.mu_sigma(encoded)
         mu = mu_sigma[:,:self.latent_dims]
-        sigma = nn.Softplus(mu_sigma[:,self.latent_dims:])
+        sigma = self.Softplus(mu_sigma[:,self.latent_dims:])
         return mu, sigma
     
     def decode(self, z):

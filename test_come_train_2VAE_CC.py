@@ -84,7 +84,6 @@ train_dataset = NSynthDoubleDataset(
     usage = 'train',
     filter_keys = ('vocal_acoustic', 'string_acoustic'),
     transform = AT,
-    normalization = 11.57,
     length_style = 'min'
 )
 
@@ -93,7 +92,6 @@ valid_dataset = NSynthDoubleDataset(
     usage = 'valid',
     filter_keys = ('vocal_acoustic', 'string_acoustic'),
     transform = AT,
-    normalization = 11.57,
     length_style = 'max'
 )
 
