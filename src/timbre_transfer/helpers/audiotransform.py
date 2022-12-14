@@ -6,9 +6,11 @@ import torchaudio.functional as tf
 import torchaudio
 
 class AudioTransform(torch.nn.Module):
-    def __init__(self,input_freq = 16000, n_fft=1024,n_mel=128,stretch_factor=0.8):
+    def __init__(self,input_freq = 16000, n_fft=1024,n_mel=128,stretch_factor=0.8, maxi=11.56):
         super().__init__()
         self.spec = ta.Spectrogram(n_fft=n_fft, power=2)
+
+        self.maxi = maxi
 
         self.spec_aug = torch.nn.Sequential(
             ta.TimeStretch(stretch_factor, fixed_rate=True),
@@ -35,7 +37,7 @@ class AudioTransform(torch.nn.Module):
         
         mel = np.log(1+mel)
         
-        mel = (2*mel-1)/self.normalization
+        mel = (2*mel-1)*0.8/self.maxi
 
         s = mel.size()
         #s[0] : 1
@@ -56,7 +58,7 @@ class AudioTransform(torch.nn.Module):
 
     def inverse(self,mel : torch.Tensor):
         
-        inv = (mel*self.normalization+1)/2
+        inv = (mel*self.maxi/0.8+1)/2
         inv = np.exp(mel)-1
         inv = self.inverse_melscale(inv)
         inv = self.griffin(inv)
