@@ -32,7 +32,7 @@ class Spectral_Encoder(nn.Module):
                 kernel_size = kernel_size,
                 padding = kernel_size//2,
                 stride = stride))
-        
+        self.Conv_layers.append(nn.ReLU())
         for i in range(1,n_convLayers):
             self.Conv_layers.append(
                 nn.Conv2d(
