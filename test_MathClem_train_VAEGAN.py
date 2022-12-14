@@ -20,8 +20,8 @@ from torch.utils.tensorboard import SummaryWriter
 
 dataset_folder = "data"
 
-preTrained_loadName = "exp_VAEGAN/exp1"
-preTrained_saveName = "exp_VAEGAN/exp1"
+preTrained_loadName = "pretrained/exp_VAEGAN/exp1"
+preTrained_saveName = "pretrained/exp_VAEGAN/exp1"
 writer = SummaryWriter(os.path.join('runs','test_VAEGAN'))
 
 ## Name of the saved trained network
@@ -31,7 +31,7 @@ writer = SummaryWriter(os.path.join('runs','test_VAEGAN'))
 train_ratio = 1
 
 # Number of Epochs
-epochs = 400
+epochs = 50
 # Learning rate
 lr = 1e-4
 # Reconstruction Loss (always use reduction='none')
@@ -118,7 +118,7 @@ discriminator = Spectral_Discriminator(
     max_depth = max_depth,
     stride = stride)
 
-model = SpectralVAE_GAN(encoder, decoder, discriminator, freqs_dim = freqs_dim, len_dim = len_dim, encoding_dim = hidden_dim, latent_dim = latent_dim)
+model = SpectralVAE_GAN(encoder, decoder, discriminator, freqs_dim = freqs_dim, len_dim = len_dim, encoding_dim = hidden_dim, latent_dim = latent_dim).to(device)
 
 ## Loading pre-trained model
 if os.path.isfile(preTrained_loadName+'.pt'):
@@ -136,6 +136,7 @@ for epoch in range(epochs):
 
     beta = min(beta_end, epoch/warm_up_length*beta_end)
     for i, (x,_) in enumerate(iter(train_loader)):
+        x = x.to(device)
         losses = trainStep_VAE_GAN(model, discriminator, x, optimizer, beta)
         for j,l in enumerate(losses):
             train_losses_vect[j]+=l.cpu().detach().numpy()*x.size()[0]/nb_train
@@ -169,10 +170,10 @@ for epoch in range(epochs):
     x_test = x_test.to(device)
     model = model.to(device)
     
-    y_test = model(x_test)[0]
+    y_test = model(x_test)[1]
     
-    x_grid = torchvision.utils.make_grid(x_test)
-    y_grid = torchvision.utils.make_grid(y_test/torch.max(y_test))
+    x_grid = torchvision.utils.make_grid(x_test/2+.4)
+    y_grid = torchvision.utils.make_grid(y_test/2+.4)
 
     writer.add_image("input_image",x_grid, epoch)
     writer.add_image("output_image",y_grid, epoch)

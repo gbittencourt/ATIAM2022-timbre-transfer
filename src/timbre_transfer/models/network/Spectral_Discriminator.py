@@ -17,6 +17,7 @@ class Spectral_Discriminator(nn.Module):
             self.Lin1 = nn.Linear(self.LastSize*self.LastSize*self.lastLayerChannels, hidden_dim)
             self.Lin2 = nn.Linear(hidden_dim, hidden_dim)
             self.ReLU = nn.ReLU()
+            self.BatchNorm1D = nn.BatchNorm1d(self.hidden_dim)
             self.Sigmoid = nn.Sigmoid()
             self.Flatten = nn.Flatten()
 
@@ -32,9 +33,9 @@ class Spectral_Discriminator(nn.Module):
                     padding = kernel_size//2,
                     stride = stride))
             
-            self.Conv_layers.append(
-                nn.BatchNorm2d(base_depth)
-            )
+            #self.Conv_layers.append(
+            #    nn.BatchNorm2d(base_depth)
+            #)
             
             self.Conv_layers.append(nn.ReLU())
             
@@ -46,25 +47,22 @@ class Spectral_Discriminator(nn.Module):
                         kernel_size = kernel_size,
                         padding = kernel_size//2,
                         stride = stride))
-                self.Conv_layers(
-                    nn.BatchNorm2d(min(base_depth*np.power(2,i),self.lastLayerChannels))
-                )
+                #self.Conv_layers.append(
+                    #nn.BatchNorm2d(min(base_depth*np.power(2,i),self.lastLayerChannels))
+                #)
                 
-                self.Conv_layers(nn.ReLU())
+                self.Conv_layers.append(nn.ReLU())
 
                 
     def forward(self,x):
         h = x
-        
-        for i,layer in enumerate(self.Conv_layers) :
-            h = layer(h)
+        h = self.Conv_layers(h)
         
         h = self.Flatten(h)
         h = self.Lin1(h)
-        h = nn.BatchNorm1d(self.hidden_dim)
+        #h = self.BatchNorm1D(h)
         h = self.ReLU(h)
         h = self.Lin2(h)
-        h = nn.Sigmoid(h)
-        
+        h = self.Sigmoid(h)
         return h 
         

@@ -27,11 +27,12 @@ class SpectralVAE_GAN(AE):
         - encoding_dim [int] : dimension of the space to which the inputs are encoded"""
 
     def __init__(self, encoder, decoder, discriminator, freqs_dim, len_dim, encoding_dim, latent_dim):
-        super(SpectralVAE_GAN, self).__init__(encoder, decoder, discriminator, encoding_dim)
+        super(SpectralVAE_GAN, self).__init__(encoder, decoder, encoding_dim)
 
         self.latent_dims = latent_dim
         self.freqs_dim = freqs_dim
         self.len_dim = len_dim
+        self.discriminator = discriminator
 
         self.mu = nn.Linear(self.encoding_dims, self.latent_dims)
         self.sigma = nn.Sequential(nn.Linear(self.encoding_dims, self.latent_dims), nn.Softplus())

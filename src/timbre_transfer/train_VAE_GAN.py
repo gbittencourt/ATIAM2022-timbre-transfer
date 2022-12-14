@@ -10,10 +10,10 @@ def computeLoss(VAE_GAN, Discriminator,x, beta):
     
     kl_loss = kl_div.mean(0).sum()
     
-    disc_real_output = Discriminator(x)
+    disc_real_output = VAE_GAN.discriminate(x)
     disc_fake_output = result
     
-    loss_discriminator = 1/2 * (loss_disc(disc_real_output, torch.ones_like(disc_real_output)) + loss_disc(disc_fake_output, torch.zeros_like(disc_fake_output)))
+    loss_discriminator = 1/2 * (loss_disc(disc_real_output, torch.ones_like(disc_real_output)) + loss_disc(disc_fake_output, torch.zeros_like(disc_fake_output))).sum()
 
     if beta==0:
         full_loss = recons_loss + loss_discriminator
