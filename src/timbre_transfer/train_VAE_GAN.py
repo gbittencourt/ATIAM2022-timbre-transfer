@@ -5,13 +5,13 @@ recons_criterion = nn.MSELoss(reduction='none')
 loss_disc = nn.MSELoss(reduction='none')
 
 def computeLoss(VAE_GAN, Discriminator,x, beta):
-    result, x_hat, kl_div = VAE_GAN(x)
+    x_hat, kl_div = VAE_GAN(x)
     recons_loss = recons_criterion(x_hat,x).mean(0).sum()
     
     kl_loss = kl_div.mean(0).sum()
     
     disc_real_output = VAE_GAN.discriminate(x)
-    disc_fake_output = result
+    disc_fake_output = VAE_GAN.discriminate(x_hat)
     
     loss_discriminator = 1/2 * (loss_disc(disc_real_output, torch.ones_like(disc_real_output)) + loss_disc(disc_fake_output, torch.zeros_like(disc_fake_output))).sum()
 

@@ -39,10 +39,10 @@ recons_criterion = torch.nn.MSELoss(reduction = 'none')
 
 # Beta-VAE Beta coefficient and warm up length
 beta_end = 1
-warm_up_length = 200 #epochs
+warm_up_length = 1 #epochs
 
 # Dataloaders parameters
-train_batch_size = 8
+train_batch_size = 256
 valid_batch_size = 1024
 num_threads = 0
 
@@ -170,7 +170,7 @@ for epoch in range(epochs):
     x_test = x_test.to(device)
     model = model.to(device)
     
-    y_test = model(x_test)[1]
+    y_test = model(x_test)[0]
     
     x_grid = torchvision.utils.make_grid(x_test/2+.4)
     y_grid = torchvision.utils.make_grid(y_test/2+.4)
