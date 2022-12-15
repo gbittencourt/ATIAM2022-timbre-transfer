@@ -15,7 +15,7 @@ from src.timbre_transfer.models.network.Spectral_Decoder import Spectral_Decoder
 from src.timbre_transfer.models.network.Spectral_Encoder import Spectral_Encoder
 from src.timbre_transfer.models.network.Spectral_Discriminator import Spectral_Discriminator
 from src.timbre_transfer.models.VAE_GAN import SpectralVAE_GAN
-from src.timbre_transfer.train_VAE_GAN import trainStep_VAE_GAN ,  computeLoss
+from src.timbre_transfer.train_VAE_GAN import trainStep_VAE_GAN ,  computeLoss_VAE_GAN
 from torch.utils.tensorboard import SummaryWriter
 
 dataset_folder = "data"
@@ -144,7 +144,7 @@ for epoch in range(epochs):
     with torch.no_grad():
         for i , (x,_) in enumerate(iter(valid_loader)):
             x = x.to(device)
-            losses = computeLoss(model, discriminator, x, beta)
+            losses = computeLoss_VAE_GAN(model, x, beta)
             for j,l in enumerate(losses):
                 valid_losses_vect[j]+=l.cpu().detach().numpy()*x.size()[0]/nb_valid
     # Saving trained model

@@ -4,7 +4,7 @@ import torch
 recons_criterion = nn.MSELoss(reduction='none')
 loss_disc = nn.MSELoss(reduction='none')
 
-def computeLoss(VAE_GAN, Discriminator,x, beta):
+def computeLoss_VAE_GAN(VAE_GAN, x, beta):
     result, x_hat, kl_div = VAE_GAN(x)
     recons_loss = recons_criterion(x_hat,x).mean(0).sum()
     
@@ -24,7 +24,7 @@ def computeLoss(VAE_GAN, Discriminator,x, beta):
 
 def trainStep_VAE_GAN(VAE_GAN, Discriminator, x, optimizer, beta):
     # Compute the loss
-    full_loss, recons_loss, kl_loss, loss_discriminator = computeLoss(VAE_GAN, Discriminator, x, beta)
+    full_loss, recons_loss, kl_loss, loss_discriminator = computeLoss_VAE_GAN(VAE_GAN, Discriminator, x, beta)
     # Before the backward pass, zero all of the network gradients
     optimizer.zero_grad()
     # Backward pass: compute gradient of the loss with respect to parameters
