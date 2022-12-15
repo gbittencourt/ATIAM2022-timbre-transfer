@@ -15,7 +15,7 @@ class Spectral_Discriminator(nn.Module):
             
             # Definition of layers
             self.Lin1 = nn.Linear(self.LastSize*self.LastSize*self.lastLayerChannels, hidden_dim)
-            self.Lin2 = nn.Linear(hidden_dim, hidden_dim)
+            self.Lin2 = nn.Linear(hidden_dim, 1)
             self.ReLU = nn.ReLU()
             self.BatchNorm1D = nn.BatchNorm1d(self.hidden_dim)
             self.Sigmoid = nn.Sigmoid()
