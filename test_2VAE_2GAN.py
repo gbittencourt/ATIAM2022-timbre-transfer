@@ -15,8 +15,6 @@ from src.timbre_transfer.models.network.Spectral_Decoder import Spectral_Decoder
 from src.timbre_transfer.models.network.Spectral_Encoder import Spectral_Encoder
 from src.timbre_transfer.models.network.Spectral_Discriminator import Spectral_Discriminator
 from src.timbre_transfer.models.VAE_GAN import SpectralVAE_GAN
-from src.timbre_transfer.train_VAE_GAN_CC import computeLoss_CC_GAN
-from src.timbre_transfer.train_VAE_GAN import computeLoss_VAE_GAN
 from torchinfo import summary
 
 from torch.utils.tensorboard import SummaryWriter
@@ -36,7 +34,7 @@ writer = SummaryWriter(os.path.join('runs','test_2VAE_CC_GAN_1'))
 # Number of Epochs
 epochs = 30
 # Learning rate
-lr = 1e-5
+lr = 1e-4
 # Reconstruction Loss (always use reduction='none')
 recons_criterion = torch.nn.MSELoss(reduction = 'none')
 
@@ -45,10 +43,10 @@ beta_end = .5
 warm_up_length = 0 #epochs
 
 #Lambdas [VAE & CC, Gan, Latent]
-lambdas = [1,30,1]
+lambdas = [1,100]
 
 # Dataloaders parameters
-train_batch_size = 8
+train_batch_size = 256
 valid_batch_size = 1024
 num_threads = 0
 
@@ -179,8 +177,8 @@ optimizer_gen = torch.optim.Adam(param_gen, lr=lr)
 optimizer_dis_1 = torch.optim.Adam(discriminator1.parameters(), lr = lr)
 optimizer_dis_2 = torch.optim.Adam(discriminator2.parameters(), lr = lr)
 
-#print('Model 1')
-#summary(model1, input_size=(train_batch_size, 1, 128, 128))
+print('VAE')
+summary(model1, input_size=(train_batch_size, 1, 128, 128))
 #print('Model 2')
 #summary(model2, input_size=(train_batch_size, 1, 128, 128))
 
@@ -375,13 +373,13 @@ for epoch in range(epochs):
         train_runningLosses[3]+=loss_dis*lambdas[1]*x1.size()[0]/nb_train
         
 
-        writer.add_scalars("Batch losses",
-        {
-            'Reconstruction' : loss_gen[0]*lambdas[0],
-            'KLDiv' : loss_gen[1]*beta,
-            "Generator" : loss_gen[2]*lambdas[1],
-            "Discriminator" : loss_dis*lambdas[1]
-        }, batchIdx)
+        #writer.add_scalars("Batch losses",
+        #{
+        #    'Reconstruction' : loss_gen[0]*lambdas[0],
+        #    'KLDiv' : loss_gen[1]*beta,
+        #    "Generator" : loss_gen[2]*lambdas[1],
+        #    "Discriminator" : loss_dis*lambdas[1]
+        #}, batchIdx)
         batchIdx+=1
 
 
