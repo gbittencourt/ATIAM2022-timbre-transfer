@@ -14,13 +14,14 @@ from src.timbre_transfer.helpers.audiotransform import AudioTransform
 from src.timbre_transfer.models.network.Spectral_Decoder import Spectral_Decoder
 from src.timbre_transfer.models.network.Spectral_Encoder import Spectral_Encoder
 from src.timbre_transfer.models.Spectral_VAE import SpectralVAE
-
+from src.timbre_transfer.train_vae import trainStep_betaVAE, computeLoss_VAE
 from torch.utils.tensorboard import SummaryWriter
 
 dataset_folder = "../../data"
 
-preTrained_loadNames = "exp_2VAs/exp1"
-preTrained_saveName = ["exp_2VAs/exp1_vocal", "exp_2VAs/exp1_string"]
+preTrained_loadNames = ["exp_2VAs/exp1_vocal_MSE", "exp_2VAs/exp1_string_MSE"]
+preTrained_saveName = ["exp_2VAs/exp1_vocal_MSE", "exp_2VAs/exp1_string_MSE"]
+writer = SummaryWriter(os.path.join('runs','test_2VAEs_MSE'))
 
 
 ## Name of the saved trained network
@@ -30,17 +31,18 @@ preTrained_saveName = ["exp_2VAs/exp1_vocal", "exp_2VAs/exp1_string"]
 train_ratio = 1
 
 # Number of Epochs
-epochs = 40
+epochs = 400
 # Learning rate
 lr = 1e-4
 # Reconstruction Loss (always use reduction='none')
-recons_criterion = torch.nn.BCELoss(reduction = 'none')
+recons_criterion = torch.nn.MSELoss(reduction = 'none')
+
 # Beta-VAE Beta coefficient and warm up length
 beta_end = 1
-warm_up_length = 20 #epochs
+warm_up_length = 200 #epochs
 
 # Dataloaders parameters
-train_batch_size = 4
+train_batch_size = 8
 valid_batch_size = 1024
 num_threads = 0
 
@@ -51,7 +53,7 @@ hidden_dim = 256
 # Dimension of the latent space
 latent_dim = 8
 # Number of filters of the first convolutionnal layer
-base_depth = 128
+base_depth = 64
 # Max number of channels of te convolutionnal layers
 max_depth = 512
 # Number of convolutionnal layers
@@ -64,7 +66,6 @@ stride = 4
 freqs_dim = 128
 len_dim = 128
 
-writer = SummaryWriter(os.path.join('runs','test_2VAEs'))
 
 device  = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 #device = 'cpu'
@@ -99,30 +100,7 @@ valid_loader2 = torch.utils.data.DataLoader(dataset=valid_dataset2, batch_size=v
 train_loaders = [train_loader1, train_loader2]
 valid_loaders = [valid_loader1, valid_loader2]
 
-## Loss Function
-def compute_loss_beta(model, x, beta):
-    x_hat, kl_div = model(x)
-    recons_loss = recons_criterion(x_hat,x).mean(0).sum()
-    
-    kl_loss = kl_div.mean(0).sum()
-    if beta==0:
-        full_loss = recons_loss
-    else:
-        full_loss = recons_loss - beta*kl_loss
-    
-    return full_loss, recons_loss, -kl_loss
 
-## Train step
-def train_step_beta(model, x, optimizer, beta):
-    # Compute the loss.
-    full_loss, recons_loss, kl_loss = compute_loss_beta(model, x, beta)
-    # Before the backward pass, zero all of the network gradients
-    optimizer.zero_grad()
-    # Backward pass: compute gradient of the loss with respect to parameters
-    full_loss.backward()
-    # Calling the step function to update the parameters
-    optimizer.step()
-    return full_loss, recons_loss, kl_loss
 
 
 ## Model definition
@@ -163,9 +141,11 @@ model1 = SpectralVAE(encoder, decoder1, freqs_dim = freqs_dim, len_dim = len_dim
 model2 = SpectralVAE(encoder, decoder2, freqs_dim = freqs_dim, len_dim = len_dim, encoding_dim = hidden_dim, latent_dim = latent_dim)
 
 models = [model1, model2]
+
 ## Loading pre-trained model
-#if os.path.isfile(preTrained_loadName+'.pt'):
-#    model1.load_state_dict(torch.load('./'+preTrained_loadName+'.pt'))
+if os.path.isfile(preTrained_loadNames[0]+'.pt') and os.path.isfile(preTrained_loadNames[1]+'.pt'):
+    model1.load_state_dict(torch.load('./'+preTrained_loadNames[0]+'.pt'))
+    model2.load_state_dict(torch.load('./'+preTrained_loadNames[1]+'.pt'))
 
 # Optimizer
 optimizer1 = torch.optim.Adam(model1.parameters(), lr=lr)
@@ -205,7 +185,7 @@ for epoch in range(epochs):
             x = next(iter_loaders[modelIdx])[0].to(device)
             model = models[modelIdx]
             optimizer = optimizers[modelIdx]
-            losses = train_step_beta(model, x, optimizer, beta)
+            losses = trainStep_betaVAE(model, x, optimizer, beta)
             for j,l in enumerate(losses):
                 train_losses[modelIdx][j]+=l.cpu().detach().numpy()*x.size()[0]/nb_train
     
@@ -221,7 +201,7 @@ for epoch in range(epochs):
 
             for i , (x,_) in enumerate(iter(valid_loader)):
                 x = x.to(device)
-                losses = compute_loss_beta(model1, x, beta)
+                losses = computeLoss_VAE(model1, x, beta)
                 for j,l in enumerate(losses):
                     valid_losses[modelIdx][j]+=l.cpu().detach().numpy()*x.size()[0]/nb_valids[modelIdx]
     #torch.save(model1.state_dict(), preTrained_saveName+'.pt')
@@ -242,7 +222,8 @@ for epoch in range(epochs):
         loss_dict['Training, model ' + str(modelIdx)] = train_losses[modelIdx][2]
         loss_dict['Validation, model ' + str(modelIdx)] = valid_losses[modelIdx][2]
     writer.add_scalars("KL Divergence",loss_dict, epoch)
-    
+
+    print(f'epoch : {epoch}, beta  : {round(beta,2)}')
     
     for modelIdx in range(len(models)):
     
@@ -260,7 +241,9 @@ for epoch in range(epochs):
         writer.add_image("model " + str(modelIdx) + ", input image", x_grid, epoch)
         writer.add_image("model " + str(modelIdx) + ", output image", y_grid, epoch)
 
-        if (epoch+1)%5==0:
+    
+
+        if (epoch+1)%20==0:
             print('Exporting sound')
             AT = AT.to('cpu')
             x_test = x_test.to('cpu')
@@ -274,9 +257,5 @@ for epoch in range(epochs):
             writer.add_audio("model " + str(modelIdx) + ", input audio", x_test_sound, sample_rate=16000, global_step=epoch)
             writer.add_audio("model " + str(modelIdx) + ", output audio", y_test_sound, sample_rate=16000, global_step=epoch)
             print('Exported !\n')
-    
-    
-    print(f'epoch : {epoch}')
-
 writer.flush()
 writer.close()

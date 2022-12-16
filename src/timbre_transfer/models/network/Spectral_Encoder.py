@@ -23,7 +23,7 @@ class Spectral_Encoder(nn.Module):
         self.Flatten = nn.Flatten()
 
         #Definition of the multiple convolution layers
-        self.Conv_layers = nn.ModuleList()
+        self.Conv_layers = nn.Sequential()
 
         self.Conv_layers.append(
             nn.Conv2d(
@@ -32,7 +32,7 @@ class Spectral_Encoder(nn.Module):
                 kernel_size = kernel_size,
                 padding = kernel_size//2,
                 stride = stride))
-        
+        self.Conv_layers.append(nn.ReLU())
         for i in range(1,n_convLayers):
             self.Conv_layers.append(
                 nn.Conv2d(
@@ -47,8 +47,7 @@ class Spectral_Encoder(nn.Module):
         
     def forward(self, x):
         h=x
-        for Conv_layer in self.Conv_layers:
-            h = Conv_layer(h)
+        h = self.Conv_layers(h)
         
         h = self.Flatten(h)
         h = self.ReLU(self.Lin1(h))

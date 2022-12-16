@@ -17,7 +17,6 @@ class VAE(AE):
     
     def __init__(self, encoder, decoder, encoding_dims, latent_dims):
         super(VAE, self).__init__(encoder, decoder, encoding_dims)
-        self.dummy_param = nn.Parameter(torch.empty(0)) # to find device
         self.latent_dims = latent_dims
         self.mu = nn.Linear(self.encoding_dims, self.latent_dims)
         self.sigma = nn.Sequential(nn.Linear(self.encoding_dims, self.latent_dims), nn.Softplus())
@@ -41,7 +40,6 @@ class VAE(AE):
         return x_tilde.reshape(-1, 1, 28, 28), kl_div
     
     def latent(self, x, z_params):
-        device = self.dummy_param.device
-        z = z_params[0] + torch.randn(self.latent_dims).to(device)*torch.square(z_params[1])
+        z = z_params[0] + torch.randn_like(z_params[1])*torch.square(z_params[1])
         kl_div = (1 + torch.log(torch.square(z_params[1])) - torch.square(z_params[0]) - torch.square(z_params[1]))/2
         return z, kl_div

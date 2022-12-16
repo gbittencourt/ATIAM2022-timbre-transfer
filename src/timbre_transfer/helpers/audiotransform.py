@@ -1,14 +1,15 @@
 import torch
 import torch.nn as nn
-import numpy as np
 import torchaudio.transforms as ta
 import torchaudio.functional as tf
 import torchaudio
 
 class AudioTransform(torch.nn.Module):
-    def __init__(self,input_freq = 16000, n_fft=1024,n_mel=128,stretch_factor=0.8):
+    def __init__(self,input_freq = 16000, n_fft=1024,n_mel=128,stretch_factor=0.8, maxi=11.56):
         super().__init__()
         self.spec = ta.Spectrogram(n_fft=n_fft, power=2)
+
+        self.maxi = maxi
 
         self.spec_aug = torch.nn.Sequential(
             ta.TimeStretch(stretch_factor, fixed_rate=True),
@@ -33,17 +34,28 @@ class AudioTransform(torch.nn.Module):
         # Convert to mel-scale
         mel = self.mel_scale(spec)
         
-        mel = np.log(1+mel)/np.log(2)
+        mel = torch.log(1+mel)
+        mel = mel/self.maxi
 
         s = mel.size()
-        if s[2]%s[1]!=0:
-            new_mel = torch.zeros((s[0], s[1], s[1]))
-            new_mel[:,:,:s[2]] = mel
+        #s[0] : 1
+        #s[1] : mels
+        #s[2] : temporel
+        if s[2]!=s[1]:
+            n = s[2]//s[1]+1
+            if n ==1:
+                new_mel = torch.zeros((s[0], s[1], s[1]))
+                new_mel[:,:,:s[2]] = mel
+            else:
+                new_mel = torch.zeros((n, s[0], s[1], s[1]))
+                for i in range(n-1):
+                    new_mel[i,:,:,:] = mel[:,:,i*s[1]:(i+1)*s[1]]
+                new_mel[n-1,:,:,:s[2]-(n-1)*s[1]] = mel[:,:,(n-1)*s[1]:]
             mel = new_mel
         return mel
-    
+
     def inverse(self,mel : torch.Tensor):
-        inv = np.exp(mel*np.log(2))-1
+        inv = torch.exp(mel*self.maxi)-1
         inv = self.inverse_melscale(inv)
         inv = self.griffin(inv)
         
