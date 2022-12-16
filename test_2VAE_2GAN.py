@@ -32,7 +32,7 @@ writer = SummaryWriter(os.path.join('runs','test_2VAE_CC_GAN_1'))
 ## Training parameters
 
 # Number of Epochs
-epochs = 30
+epochs = 200
 # Learning rate
 lr = 1e-4
 # Reconstruction Loss (always use reduction='none')
@@ -71,7 +71,7 @@ freqs_dim = 128
 len_dim = 128
 
 
-device  = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device  = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 #device = 'cpu'
 print(device)
 
