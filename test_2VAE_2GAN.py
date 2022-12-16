@@ -19,7 +19,7 @@ from torchinfo import summary
 
 from torch.utils.tensorboard import SummaryWriter
 
-dataset_folder = "data"
+dataset_folder = os.path.join("fast-1","atiam22-23")
 
 
 preTrained_loadNames = ["pretrained/exp_2_VAE_GAN/vocal_1", "pretrained/exp_2_VAE_GAN/string_1"]
