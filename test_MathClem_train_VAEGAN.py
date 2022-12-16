@@ -137,9 +137,18 @@ for epoch in range(epochs):
     beta = min(beta_end, epoch/warm_up_length*beta_end)
     for i, (x,_) in enumerate(iter(train_loader)):
         x = x.to(device)
+        
+        optimizer.zero_grad()
+        
         losses = trainStep_VAE_GAN(model, discriminator, x, optimizer, beta)
+        
+        full_loss = losses[0]
+        
         for j,l in enumerate(losses):
             train_losses_vect[j]+=l.cpu().detach().numpy()*x.size()[0]/nb_train
+            
+        full_loss.backward()
+        optimizer.step()
     
     with torch.no_grad():
         for i , (x,_) in enumerate(iter(valid_loader)):
