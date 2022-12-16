@@ -59,13 +59,13 @@ class NSynthDataset(Dataset):
     def __init__(self, root_dir : str, usage = 'train', transform = None, filter_key = None, normalization = None):
         self.root_dir = root_dir
         train_valid_test = {
-            'train' : os.path.join('nsynth','nsynth-train/'),
-            'test' :  os.path.join('nsynth','nsynth-test/'),
-            'valid' : os.path.join('nsynth','nsynth-valid/'),
+            'train' : os.path.join('nsynth','nsynth-train'),
+            'test' :  os.path.join('nsynth','nsynth-test'),
+            'valid' : os.path.join('nsynth','nsynth-valid'),
         }
         
         self.set_dir = os.path.join(self.root_dir, train_valid_test[usage])
-        self.audio_dir = os.path.join(self.set_dir, 'audio')
+        self.audio_dir = os.path.join(self.set_dir, 'audio/')
         self.file_names = os.listdir(self.audio_dir)
         self.transform = transform
         self.normalization = normalization
