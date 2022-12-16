@@ -15,8 +15,8 @@ from src.timbre_transfer.models.network.Spectral_Decoder import Spectral_Decoder
 from src.timbre_transfer.models.network.Spectral_Encoder import Spectral_Encoder
 from src.timbre_transfer.models.network.Spectral_Discriminator import Spectral_Discriminator
 from src.timbre_transfer.models.VAE_GAN import SpectralVAE_GAN
-from src.timbre_transfer.train_VAE_GAN_CC import trainStep_VAE_GAN_CC ,  computeLoss_VAE_GAN_CC
-from src.timbre_transfer.train_VAE_GAN import trainStep_VAE_GAN ,  computeLoss_VAE_GAN
+from src.timbre_transfer.train_VAE_GAN_CC import computeLoss_CC_GAN
+from src.timbre_transfer.train_VAE_GAN import computeLoss_VAE_GAN
 from torchinfo import summary
 
 from torch.utils.tensorboard import SummaryWriter
@@ -24,9 +24,9 @@ from torch.utils.tensorboard import SummaryWriter
 dataset_folder = "data"
 
 
-preTrained_loadNames = ["pretrained/exp_2_VAE_GAN/vocal_2", "pretrained/exp_2_VAE_GAN/string_2"]
-preTrained_saveName = ["pretrained/exp_2_VAE_GAN/vocal_2", "pretrained/exp_2_VAE_GAN/string_2"]
-writer = SummaryWriter(os.path.join('runs','test_2VAEs_CC_2'))
+preTrained_loadNames = ["pretrained/exp_2_VAE_GAN/vocal_1", "pretrained/exp_2_VAE_GAN/string_1"]
+preTrained_saveName = ["pretrained/exp_2_VAE_GAN/vocal_1", "pretrained/exp_2_VAE_GAN/string_1"]
+writer = SummaryWriter(os.path.join('runs','test_2VAE_CC_GAN_1'))
 
 
 ## Name of the saved trained network
@@ -41,14 +41,14 @@ lr = 1e-4
 recons_criterion = torch.nn.MSELoss(reduction = 'none')
 
 # Beta-VAE Beta coefficient and warm up length
-beta_end = 1
+beta_end = .5
 warm_up_length = 15 #epochs
 
 #Lambdas [VAE & CC, Gan, Latent]
-lambdas = [1,0,0]
+lambdas = [1,5,1]
 
 # Dataloaders parameters
-train_batch_size = 128
+train_batch_size = 8
 valid_batch_size = 1024
 num_threads = 0
 
@@ -57,7 +57,7 @@ num_threads = 0
 # Dimension of the linear layer
 hidden_dim = 256
 # Dimension of the latent space
-latent_dim = 8
+latent_dim = 16
 # Number of filters of the first convolutionnal layer
 base_depth = 64
 # Max number of channels of te convolutionnal layers
@@ -173,14 +173,18 @@ if os.path.isfile(preTrained_loadNames[0]+'.pt') and os.path.isfile(preTrained_l
     model2.load_state_dict(torch.load('./'+preTrained_loadNames[1]+'.pt'))
 
 # Optimizer
-optimizer1 = torch.optim.Adam(model1.parameters(), lr=lr)
-optimizer2 = torch.optim.Adam(model2.parameters(), lr=lr)
+optimizer_gen_1 = torch.optim.Adam(model1.parameters(), lr=lr)
+optimizer_gen_2 = torch.optim.Adam(model2.parameters(), lr=lr)
 
+optimizer_dis_1 = torch.optim.Adam(discriminator1.parameters(), lr = lr)
+optimizer_dis_2 = torch.optim.Adam(discriminator2.parameters(), lr = lr)
 
 print('Model 1')
 summary(model1, input_size=(train_batch_size, 1, 128, 128))
 print('Model 2')
 summary(model2, input_size=(train_batch_size, 1, 128, 128))
+
+print('\n')
 
 model1 = model1.to(device)
 model2 = model2.to(device)
@@ -189,17 +193,17 @@ model2 = model2.to(device)
 beta = 0
 
 batchIdx = 0
-
 ## Training
 for epoch in range(epochs):
+    
     train_losses = {}
     valid_losses = {}
 
-    train_losses_VAE_GAN = np.zeros(3)
-    valid_losses_VAE_GAN = np.zeros(3)
+    train_losses_VAE_GAN = np.zeros(4)
+    valid_losses_VAE_GAN = np.zeros(4)
 
-    train_losses_CC = np.zeros(3)
-    valid_losses_CC = np.zeros(3)
+    train_losses_CC = np.zeros(4)
+    valid_losses_CC = np.zeros(4)
     
     if warm_up_length !=0:
         beta = min(beta_end, epoch/warm_up_length*beta_end)
@@ -210,33 +214,51 @@ for epoch in range(epochs):
 
     for i, (x1, x2) in enumerate(iter(train_loader)):
         full_loss = 0
+        losses_plot = torch.zeros(4)
         x1 = x1.to(device)
         x2 = x2.to(device)
 
-        optimizer1.zero_grad()
-        optimizer2.zero_grad()
+        optimizer_gen_1.zero_grad()
+        optimizer_gen_2.zero_grad()
+        optimizer_dis_1.zero_grad()
+        optimizer_dis_2.zero_grad()
 
         # VAEs train steps
-        l = computeLoss_VAE_GAN(model1, x1, beta)
-        full_loss+=l[0]
-        for j in range(3):
+        l = computeLoss_VAE_GAN(model1, x1)
+        # l =  (recons_loss, kl_loss, discriminator_loss, generator_loss)
+        full_loss += lambdas[0]*l[0] + beta*l[1] + lambdas[1]*(l[2]+l[3])
+        for j in range(4):
             train_losses_VAE_GAN[j] += l[j].cpu().detach().numpy()*x1.size()[0]/nb_train
+            losses_plot[j]+=l[j].cpu().detach()
 
-        l = computeLoss_VAE_GAN(model2, x2, beta)
-        full_loss+=l[0]
-        for j in range(3):
+        l = computeLoss_VAE_GAN(model2, x2)
+        # l =  (recons_loss, kl_loss, discriminator_loss, generator_loss)
+        full_loss += lambdas[0]*l[0] + beta*l[1] + lambdas[1]*(l[2]+l[3])
+        for j in range(4):
             train_losses_VAE_GAN[j] += l[j].cpu().detach().numpy()*x1.size()[0]/nb_train
+            losses_plot[j]+=l[j].cpu().detach()
 
-        l = computeLoss_VAE_GAN_CC(model1, model2, x1, x2, beta)
-        full_loss+=l[0]
-        for j in range(3):
+        l = computeLoss_CC_GAN(model1, model2, x1, x2)
+        # l =  (recons_loss, kl_loss, discriminator_loss, generator_loss)
+        full_loss += lambdas[0]*l[0] + beta*l[1] + lambdas[1]*(l[2]+l[3])
+        for j in range(4):
             train_losses_CC[j] += l[j].cpu().detach().numpy()*x1.size()[0]/nb_train
+            losses_plot[j]+=l[j].cpu().detach()
         
         full_loss.backward()
 
-        optimizer1.step()
-        optimizer2.step()
-        
+        optimizer_gen_1.step()
+        optimizer_gen_2.step()
+        optimizer_dis_1.step()
+        optimizer_dis_2.step()
+
+        writer.add_scalars("Running losses",{
+            'Sum' : full_loss,
+            'Reconstruction' : losses_plot[0]*lambdas[0],
+            'KLDiv' : losses_plot[1]*beta,
+            "Generator" : losses_plot[2]*lambdas[1],
+            "Discriminator" : losses_plot[3]*lambdas[1]
+        }, batchIdx)
         batchIdx+=1
 
 
@@ -249,41 +271,47 @@ for epoch in range(epochs):
             x1 = x1.to(device)
             x2 = x2.to(device)
 
-            l = computeLoss_VAE_GAN(model1, x1, beta)
-            for j in range(3):
+            l = computeLoss_VAE_GAN(model1, x1)
+            for j in range(4):
                 valid_losses_VAE_GAN[j] += l[j].cpu().numpy()*x1.size()[0]/nb_valid
 
-            l = computeLoss_VAE_GAN(model2, x2, beta)
-            for j in range(3):
+            l = computeLoss_VAE_GAN(model2, x2)
+            for j in range(4):
                 valid_losses_VAE_GAN[j] += l[j].cpu().numpy()*x1.size()[0]/nb_valid
             
-            l = computeLoss_VAE_GAN_CC(model1, model2, x1, x2, beta)
-            for j in range(3):
+            l = computeLoss_CC_GAN(model1, model2, x1, x2)
+            for j in range(4):
                 valid_losses_CC[j] += l[j].cpu().numpy()*x1.size()[0]/nb_valid
 
 
-
-    #torch.save(model1.state_dict(), preTrained_saveName+'.pt')
-    writer.add_scalars("Overview",{
-        'Training, VAE' : train_losses_VAE_GAN[0],
-        'Validation, VAE' : valid_losses_VAE_GAN[0],
-        'Training, CC' : train_losses_CC[0],
-        'Validation, CC' : valid_losses_CC[0]
-    }, epoch)
-
     writer.add_scalars("VAE",{
-        'Training, Reconstruction' : train_losses_VAE_GAN[1],
-        'Validation, Reconstruction' : valid_losses_VAE_GAN[1],
-        'Training, Kullback-Liebler Divergence' : train_losses_VAE_GAN[2],
-        'Validation, Kullback-Liebler Divergence' : valid_losses_VAE_GAN[2]
+        'Training_Reconstruction' : train_losses_VAE_GAN[0],
+        'Validation_Reconstruction' : valid_losses_VAE_GAN[0],
+        'Training_KLDiv' : train_losses_VAE_GAN[1],
+        'Validation_KLDiv' : valid_losses_VAE_GAN[1]
     }, epoch)
 
     writer.add_scalars("Cycle Consistency",{
-        'Training, Reconstruction' : train_losses_CC[1],
-        'Validation, Reconstruction' : valid_losses_CC[1],
-        'Training, Kullback-Liebler Divergence' : train_losses_CC[2],
-        'Validation, Kullback-Liebler Divergence' : valid_losses_CC[2]
+        'Training_Reconstruction' : train_losses_CC[0],
+        'Validation_Reconstruction' : valid_losses_CC[0],
+        'Training_KLDiv' : train_losses_CC[1],
+        'Validation_KLDiv' : valid_losses_CC[1]
     }, epoch)
+
+    writer.add_scalars("Adversarial_1Pass", {
+        "Training_Generator" : train_losses_VAE_GAN[2],
+        "Training_Discriminator" : train_losses_VAE_GAN[3],
+        "Validation_Generator" : valid_losses_VAE_GAN[2],
+        "Validation_Discriminator" : valid_losses_VAE_GAN[3]
+    }, epoch)
+
+    writer.add_scalars("Adversarial_Cycle", {
+        "Training_Generator" : train_losses_VAE_GAN[2],
+        "Training_Discriminator" : train_losses_VAE_GAN[3],
+        "Validation_Generator" : valid_losses_VAE_GAN[2],
+        "Validation_Discriminator" : valid_losses_VAE_GAN[3]
+    }, epoch)
+
 
     print(f'epoch : {epoch}, beta  : {round(beta,2)}')
     
@@ -291,10 +319,17 @@ for epoch in range(epochs):
     x1_test = x1_test[:16].to(device)
     x2_test = x2_test[:16].to(device)
 
+    zeros = torch.zeros_like(x1_test)
+
     y11_test = model1(x1_test)[0].detach()
     y12_test = model2(x1_test)[0].detach()
     y22_test = model2(x2_test)[0].detach()
     y21_test = model1(x2_test)[0].detach()
+
+    y11_test = torch.where(y11_test>0, y11_test, zeros)        
+    y12_test = torch.where(y12_test>0, y12_test, zeros)    
+    y22_test = torch.where(y22_test>0, y22_test, zeros)    
+    y21_test = torch.where(y21_test>0, y21_test, zeros)        
 
     x1_grid = torchvision.utils.make_grid(x1_test)
     x2_grid = torchvision.utils.make_grid(x2_test)
@@ -323,12 +358,12 @@ for epoch in range(epochs):
         y22_test = y22_test.to('cpu')
         y21_test = y21_test.to('cpu')
 
-        x1_test_sound = AT.inverse(mel = x1_test[0]*11.57)
-        x2_test_sound = AT.inverse(mel = x2_test[0]*11.57)
-        y11_test_sound = AT.inverse(mel = y11_test[0]*11.57)
-        y12_test_sound = AT.inverse(mel = y12_test[0]*11.57)
-        y22_test_sound = AT.inverse(mel = y22_test[0]*11.57)
-        y21_test_sound = AT.inverse(mel = y21_test[0]*11.57)
+        x1_test_sound = AT.inverse(mel = x1_test[0])
+        x2_test_sound = AT.inverse(mel = x2_test[0])
+        y12_test_sound = AT.inverse(mel = y12_test[0])
+        y22_test_sound = AT.inverse(mel = y22_test[0])
+        y11_test_sound = AT.inverse(mel = y11_test[0])
+        y21_test_sound = AT.inverse(mel = y21_test[0])
 
         writer.add_audio("Set 1, input audio", x1_test_sound, sample_rate=16000, global_step=epoch)
         writer.add_audio("Set 1, model1, output audio", y11_test_sound, sample_rate=16000, global_step=epoch)

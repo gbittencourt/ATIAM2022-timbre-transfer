@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import numpy as np
-from src.timbre_transfer.models.Spectral_VAE import SpectralVAE, AE
+from src.timbre_transfer.models.Spectral_VAE import SpectralVAE
 
 
 class SpectralVAE_GAN(SpectralVAE):
@@ -24,11 +24,9 @@ class SpectralVAE_GAN(SpectralVAE):
     
     def forward(self, x):
         # Encode the inputs
-        z_params = self.encode(x)
+        z_params = self.encode((x-.5)*1.6)
         # Obtain latent samples and latent loss
         z_tilde, kl_div = self.latent(z_params)
         # Decode the samples
-        x_tilde = self.decode(z_tilde)
-        # Pass them through the discriminator
-        discriminator_loss = self.discriminate(x_tilde)
+        x_tilde = self.decode(z_tilde)/1.6+.5
         return x_tilde.reshape(-1, 1, self.freqs_dim, self.len_dim), kl_div
