@@ -36,16 +36,16 @@ writer = SummaryWriter(os.path.join('runs','test_2VAE_CC_GAN_1'))
 # Number of Epochs
 epochs = 30
 # Learning rate
-lr = 1e-4
+lr = 1e-5
 # Reconstruction Loss (always use reduction='none')
 recons_criterion = torch.nn.MSELoss(reduction = 'none')
 
 # Beta-VAE Beta coefficient and warm up length
 beta_end = .5
-warm_up_length = 15 #epochs
+warm_up_length = 0 #epochs
 
 #Lambdas [VAE & CC, Gan, Latent]
-lambdas = [1,5,1]
+lambdas = [1,30,1]
 
 # Dataloaders parameters
 train_batch_size = 8
@@ -173,21 +173,164 @@ if os.path.isfile(preTrained_loadNames[0]+'.pt') and os.path.isfile(preTrained_l
     model2.load_state_dict(torch.load('./'+preTrained_loadNames[1]+'.pt'))
 
 # Optimizer
-optimizer_gen_1 = torch.optim.Adam(model1.parameters(), lr=lr)
-optimizer_gen_2 = torch.optim.Adam(model2.parameters(), lr=lr)
+param_gen = list(encoder.parameters())+list(decoder1.parameters())+list(decoder2.parameters())
+optimizer_gen = torch.optim.Adam(param_gen, lr=lr)
 
 optimizer_dis_1 = torch.optim.Adam(discriminator1.parameters(), lr = lr)
 optimizer_dis_2 = torch.optim.Adam(discriminator2.parameters(), lr = lr)
 
-print('Model 1')
-summary(model1, input_size=(train_batch_size, 1, 128, 128))
-print('Model 2')
-summary(model2, input_size=(train_batch_size, 1, 128, 128))
+#print('Model 1')
+#summary(model1, input_size=(train_batch_size, 1, 128, 128))
+#print('Model 2')
+#summary(model2, input_size=(train_batch_size, 1, 128, 128))
+
+print('Encoder')
+summary(encoder)
+print('Decoder')
+print(decoder1)
+print('Discriminator')
+summary(discriminator1)
 
 print('\n')
 
 model1 = model1.to(device)
 model2 = model2.to(device)
+
+MSE = torch.nn.MSELoss(reduction = 'none')
+
+def computeLoss_discriminator(model, real_samples, fake_samples):
+
+    estimate_real = model.discriminate(real_samples)
+    desired_real = torch.ones_like(estimate_real)
+
+    estimate_fake = model.discriminate(fake_samples)
+    desired_fake = torch.zeros_like(estimate_fake)
+
+    loss = MSE(estimate_real, desired_real) + MSE(estimate_fake, desired_fake)
+    loss = loss.mean()
+
+    return loss
+
+def computeLoss_generator(model, fake_samples):
+
+    estimate_fake = model.discriminate(fake_samples)
+    desired_fake = torch.ones_like(estimate_fake)
+
+    loss = MSE(estimate_fake, desired_fake)
+    loss = loss.mean()
+    return loss
+
+def trainStep(model1, model2, optimizer_gen, optimizer_dis_1, optimizer_dis_2, x1, x2, beta, lambdas, device):
+
+    ## Computing the discriminator loss
+    loss_discriminator = 0
+
+    y11, kldiv11 = model1(x1)
+    loss_discriminator += computeLoss_discriminator(model1, x1, y11)
+
+    y22, kldiv22 = model2(x2)
+    loss_discriminator += computeLoss_discriminator(model2, x2, y22)
+
+    y12, kldiv12 = model2(x1)
+    loss_discriminator += computeLoss_discriminator(model2, x2, y12)
+
+    y21, kldiv21 = model1(x2)
+    loss_discriminator += computeLoss_discriminator(model1, x1, y21)
+
+    y121, kldiv121 = model1(y12)
+    loss_discriminator += computeLoss_discriminator(model1, x1, y121)
+    
+    y212, kldiv212 = model1(y21)
+    loss_discriminator += computeLoss_discriminator(model2, x2, y212)
+
+    lossFull_discriminator = lambdas[1]*loss_discriminator
+
+    optimizer_dis_1.zero_grad()
+    optimizer_dis_2.zero_grad()
+    lossFull_discriminator.backward()
+    optimizer_dis_1.step()
+    optimizer_dis_2.step()
+
+    ## Computing the generator loss
+    #loss_generator  = [Recons, KLDiv, Adversarial] 
+    loss_generator = torch.zeros(3, device=device)
+
+    y11, kldiv11 = model1(x1)
+    loss_generator[0] += MSE(y11, x1).mean(0).sum()
+    loss_generator[1] += kldiv11.mean(0).sum()
+    loss_generator[2] += computeLoss_generator(model1, y11)
+
+    y22, kldiv22 = model2(x2)
+    loss_generator[0] += MSE(y22, x2).mean(0).sum()
+    loss_generator[1] += kldiv22.mean(0).sum()
+    loss_generator[2] += computeLoss_generator(model2, y22)
+
+    y12, kldiv12 = model2(x1)
+    loss_generator[1] += kldiv12.mean(0).sum()
+    loss_generator[2] += computeLoss_generator(model2, y12)
+
+    y21, kldiv21 = model1(x2)
+    loss_generator[1] += kldiv21.mean(0).sum()
+    loss_generator[2] += computeLoss_generator(model1, y21)
+
+    y121, kldiv121 = model1(y12)
+    loss_generator[0] += MSE(y121, x1).mean(0).sum()
+    loss_generator[1] += kldiv121.mean(0).sum()
+    loss_generator[2] += computeLoss_generator(model1, y121)
+    
+    y212, kldiv212 = model1(y21)
+    loss_generator[0] += MSE(y212, x2).mean(0).sum()
+    loss_generator[1] += kldiv212.mean(0).sum()
+    loss_generator[2] += computeLoss_generator(model2, y212)
+    
+    lossFull_generator = lambdas[0]*loss_generator[0] + beta*loss_generator[1] + lambdas[1]*loss_generator[2]
+    optimizer_gen.zero_grad()
+    lossFull_generator.backward()
+    optimizer_gen.step()
+
+    return loss_generator, loss_discriminator
+
+def computeLoss(model1, model2, x1, x2, device):
+    ## Computing the discriminator loss
+    loss_discriminator = 0
+    #loss_generator  = [Recons, KLDiv, Adversarial] 
+    loss_generator = torch.zeros(3, device = device)
+
+    y11, kldiv11 = model1(x1)
+    loss_discriminator += computeLoss_discriminator(model1, x1, y11)
+    loss_generator[0] += MSE(y11, x1).mean(0).sum()
+    loss_generator[1] += kldiv11.mean(0).sum()
+    loss_generator[2] += computeLoss_generator(model1, y11)
+
+    y22, kldiv22 = model2(x2)
+    loss_discriminator += computeLoss_discriminator(model2, x2, y22)
+    loss_generator[0] += MSE(y22, x2).mean(0).sum()
+    loss_generator[1] += kldiv22.mean(0).sum()
+    loss_generator[2] += computeLoss_generator(model2, y22)
+
+    y12, kldiv12 = model2(x1)
+    loss_discriminator += computeLoss_discriminator(model2, x2, y12)
+    loss_generator[1] += kldiv12.mean(0).sum()
+    loss_generator[2] += computeLoss_generator(model2, y12)
+
+    y21, kldiv21 = model1(x2)
+    loss_discriminator += computeLoss_discriminator(model1, x1, y21)
+    loss_generator[1] += kldiv21.mean(0).sum()
+    loss_generator[2] += computeLoss_generator(model1, y21)
+
+    y121, kldiv121 = model1(y12)
+    loss_discriminator += computeLoss_discriminator(model1, x1, y121)
+    loss_generator[0] += MSE(y121, x1).mean(0).sum()
+    loss_generator[1] += kldiv121.mean(0).sum()
+    loss_generator[2] += computeLoss_generator(model1, y121)
+    
+    y212, kldiv212 = model1(y21)
+    loss_discriminator += computeLoss_discriminator(model2, x2, y212)
+    loss_generator[0] += MSE(y212, x2).mean(0).sum()
+    loss_generator[1] += kldiv212.mean(0).sum()
+    loss_generator[2] += computeLoss_generator(model2, y212)
+
+    return loss_generator, loss_discriminator
 
 
 beta = 0
@@ -199,11 +342,8 @@ for epoch in range(epochs):
     train_losses = {}
     valid_losses = {}
 
-    train_losses_VAE_GAN = np.zeros(4)
-    valid_losses_VAE_GAN = np.zeros(4)
-
-    train_losses_CC = np.zeros(4)
-    valid_losses_CC = np.zeros(4)
+    train_runningLosses = np.zeros(4)
+    valid_runningLosses = np.zeros(4)
     
     if warm_up_length !=0:
         beta = min(beta_end, epoch/warm_up_length*beta_end)
@@ -213,51 +353,34 @@ for epoch in range(epochs):
     AT = AT.to('cpu')
 
     for i, (x1, x2) in enumerate(iter(train_loader)):
-        full_loss = 0
-        losses_plot = torch.zeros(4)
+        losses_plot = torch.zeros(4).to(device)
         x1 = x1.to(device)
         x2 = x2.to(device)
 
-        optimizer_gen_1.zero_grad()
-        optimizer_gen_2.zero_grad()
-        optimizer_dis_1.zero_grad()
-        optimizer_dis_2.zero_grad()
-
-        # VAEs train steps
-        l = computeLoss_VAE_GAN(model1, x1)
-        # l =  (recons_loss, kl_loss, discriminator_loss, generator_loss)
-        full_loss += lambdas[0]*l[0] + beta*l[1] + lambdas[1]*(l[2]+l[3])
-        for j in range(4):
-            train_losses_VAE_GAN[j] += l[j].cpu().detach().numpy()*x1.size()[0]/nb_train
-            losses_plot[j]+=l[j].cpu().detach()
-
-        l = computeLoss_VAE_GAN(model2, x2)
-        # l =  (recons_loss, kl_loss, discriminator_loss, generator_loss)
-        full_loss += lambdas[0]*l[0] + beta*l[1] + lambdas[1]*(l[2]+l[3])
-        for j in range(4):
-            train_losses_VAE_GAN[j] += l[j].cpu().detach().numpy()*x1.size()[0]/nb_train
-            losses_plot[j]+=l[j].cpu().detach()
-
-        l = computeLoss_CC_GAN(model1, model2, x1, x2)
-        # l =  (recons_loss, kl_loss, discriminator_loss, generator_loss)
-        full_loss += lambdas[0]*l[0] + beta*l[1] + lambdas[1]*(l[2]+l[3])
-        for j in range(4):
-            train_losses_CC[j] += l[j].cpu().detach().numpy()*x1.size()[0]/nb_train
-            losses_plot[j]+=l[j].cpu().detach()
         
-        full_loss.backward()
+        loss_gen, loss_dis = trainStep(
+            model1 = model1, model2 = model2,
+            optimizer_gen = optimizer_gen,
+            optimizer_dis_1=optimizer_dis_1,
+            optimizer_dis_2=optimizer_dis_2,
+            x1=x1,
+            x2=x2,
+            beta=beta,
+            lambdas=lambdas,
+            device=device)
+        
+        train_runningLosses[0]+=loss_gen[0]*lambdas[0]*x1.size()[0]/nb_train
+        train_runningLosses[1]+=loss_gen[1]*beta*x1.size()[0]/nb_train
+        train_runningLosses[2]+=loss_gen[2]*lambdas[1]*x1.size()[0]/nb_train
+        train_runningLosses[3]+=loss_dis*lambdas[1]*x1.size()[0]/nb_train
+        
 
-        optimizer_gen_1.step()
-        optimizer_gen_2.step()
-        optimizer_dis_1.step()
-        optimizer_dis_2.step()
-
-        writer.add_scalars("Running losses",{
-            'Sum' : full_loss,
-            'Reconstruction' : losses_plot[0]*lambdas[0],
-            'KLDiv' : losses_plot[1]*beta,
-            "Generator" : losses_plot[2]*lambdas[1],
-            "Discriminator" : losses_plot[3]*lambdas[1]
+        writer.add_scalars("Batch losses",
+        {
+            'Reconstruction' : loss_gen[0]*lambdas[0],
+            'KLDiv' : loss_gen[1]*beta,
+            "Generator" : loss_gen[2]*lambdas[1],
+            "Discriminator" : loss_dis*lambdas[1]
         }, batchIdx)
         batchIdx+=1
 
@@ -267,57 +390,38 @@ for epoch in range(epochs):
     torch.save(model2.state_dict(), preTrained_saveName[1]+'.pt')
 
     with torch.no_grad():
-        for i, (x1, x2) in enumerate(iter(train_loader)):
+        for i, (x1, x2) in enumerate(iter(valid_loader)):
             x1 = x1.to(device)
             x2 = x2.to(device)
-
-            l = computeLoss_VAE_GAN(model1, x1)
-            for j in range(4):
-                valid_losses_VAE_GAN[j] += l[j].cpu().numpy()*x1.size()[0]/nb_valid
-
-            l = computeLoss_VAE_GAN(model2, x2)
-            for j in range(4):
-                valid_losses_VAE_GAN[j] += l[j].cpu().numpy()*x1.size()[0]/nb_valid
             
-            l = computeLoss_CC_GAN(model1, model2, x1, x2)
-            for j in range(4):
-                valid_losses_CC[j] += l[j].cpu().numpy()*x1.size()[0]/nb_valid
+            loss_gen, loss_dis = computeLoss(model1, model2, x1, x2, device=device)
+
+            valid_runningLosses[0]+=loss_gen[0]*lambdas[0]*x1.size()[0]/nb_valid
+            valid_runningLosses[1]+=loss_gen[1]*beta*x1.size()[0]/nb_valid
+            valid_runningLosses[2]+=loss_gen[2]*lambdas[1]*x1.size()[0]/nb_valid
+            valid_runningLosses[3]+=loss_dis*lambdas[1]*x1.size()[0]/nb_valid
 
 
     writer.add_scalars("VAE",{
-        'Training_Reconstruction' : train_losses_VAE_GAN[0],
-        'Validation_Reconstruction' : valid_losses_VAE_GAN[0],
-        'Training_KLDiv' : train_losses_VAE_GAN[1],
-        'Validation_KLDiv' : valid_losses_VAE_GAN[1]
+        'Training_Reconstruction' : train_runningLosses[0],
+        'Validation_Reconstruction' : valid_runningLosses[0],
+        'Training_KLDiv' : train_runningLosses[1],
+        'Validation_KLDiv' : valid_runningLosses[1]
     }, epoch)
 
-    writer.add_scalars("Cycle Consistency",{
-        'Training_Reconstruction' : train_losses_CC[0],
-        'Validation_Reconstruction' : valid_losses_CC[0],
-        'Training_KLDiv' : train_losses_CC[1],
-        'Validation_KLDiv' : valid_losses_CC[1]
-    }, epoch)
-
-    writer.add_scalars("Adversarial_1Pass", {
-        "Training_Generator" : train_losses_VAE_GAN[2],
-        "Training_Discriminator" : train_losses_VAE_GAN[3],
-        "Validation_Generator" : valid_losses_VAE_GAN[2],
-        "Validation_Discriminator" : valid_losses_VAE_GAN[3]
-    }, epoch)
-
-    writer.add_scalars("Adversarial_Cycle", {
-        "Training_Generator" : train_losses_VAE_GAN[2],
-        "Training_Discriminator" : train_losses_VAE_GAN[3],
-        "Validation_Generator" : valid_losses_VAE_GAN[2],
-        "Validation_Discriminator" : valid_losses_VAE_GAN[3]
+    writer.add_scalars("Adversarial", {
+        "Training_Generator" : train_runningLosses[2],
+        "Training_Discriminator" : train_runningLosses[3],
+        "Validation_Generator" : valid_runningLosses[2],
+        "Validation_Discriminator" : valid_runningLosses[3]
     }, epoch)
 
 
     print(f'epoch : {epoch}, beta  : {round(beta,2)}')
     
     x1_test, x2_test = next(iter(valid_loader))
-    x1_test = x1_test[:16].to(device)
-    x2_test = x2_test[:16].to(device)
+    x1_test = x1_test[:8].to(device)
+    x2_test = x2_test[:8].to(device)
 
     zeros = torch.zeros_like(x1_test)
 
