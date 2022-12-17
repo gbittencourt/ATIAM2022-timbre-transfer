@@ -147,7 +147,7 @@ class NSynthDoubleDataset(Dataset):
         }
         
         self.set_dir = os.path.join(self.root_dir, train_valid_test[usage])
-        self.audio_dir = os.path.join(self.set_dir, 'audio')
+        self.audio_dir = os.path.join(self.set_dir, 'audio/')
         self.file_names_full = os.listdir(self.audio_dir)
         self.transform = transform
         self.normalization = normalization

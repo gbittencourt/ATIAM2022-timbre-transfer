@@ -19,7 +19,7 @@ from torchinfo import summary
 
 from torch.utils.tensorboard import SummaryWriter
 
-dataset_folder = os.path.join("fast-1","atiam22-23")
+dataset_folder = os.path.join("/fast-1","atiam22-23")
 
 
 preTrained_loadNames = ["pretrained/exp_2_VAE_GAN/vocal_1", "pretrained/exp_2_VAE_GAN/string_1"]
@@ -71,7 +71,7 @@ freqs_dim = 128
 len_dim = 128
 
 
-device  = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+device  = torch.device("cuda:2" if torch.cuda.is_available() else "cpu")
 #device = 'cpu'
 print(device)
 
