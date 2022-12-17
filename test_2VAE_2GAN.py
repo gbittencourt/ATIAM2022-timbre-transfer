@@ -71,7 +71,7 @@ freqs_dim = 128
 len_dim = 128
 
 
-device  = torch.device("cuda:2" if torch.cuda.is_available() else "cpu")
+device  = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 #device = 'cpu'
 print(device)
 
@@ -427,7 +427,7 @@ for epoch in range(epochs):
     }, epoch)
 
 
-    #print(f'epoch : {epoch}, beta  : {round(beta,2)}')
+    print(f'epoch : {epoch}, beta  : {round(beta,2)}')
     
     x1_test, x2_test = next(iter(valid_loader))
     x1_test = x1_test[:8].to(device)
