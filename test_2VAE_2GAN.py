@@ -22,9 +22,9 @@ from torch.utils.tensorboard import SummaryWriter
 dataset_folder = 'data'
 
 
-preTrained_loadNames = ["pretrained/test_come/vocal_1", "pretrained/test_come/string_1"]
-preTrained_saveName = ["pretrained/test_come/vocal_1", "pretrained/test_come/string_1"]
-writer = SummaryWriter(os.path.join('runs','test_come'))
+preTrained_loadNames = ["pretrained/test_come/vocal_2", "pretrained/test_come/string_2"]
+preTrained_saveName = ["pretrained/test_come/vocal_2", "pretrained/test_come/string_2"]
+writer = SummaryWriter(os.path.join('runs','test_come_2'))
 
 
 ## Name of the saved trained network
@@ -37,14 +37,14 @@ epochs = 40
 lr = 1e-4
 
 # Beta-VAE Beta coefficient and warm up length
-beta_end = .5
-warm_up_length = 0 #epochs
+beta_end = 1
+warm_up_length = 20 #epochs
 
 #Lambdas [VAE & CC, Gan, Latent]
-lambdas = [1,50]
+lambdas = [1,30]
 
 # Dataloaders parameters
-train_batch_size = 8
+train_batch_size = 64
 valid_batch_size = 1024
 num_threads = 0
 
@@ -381,16 +381,6 @@ for epoch in range(epochs):
         train_runningLosses[1]+=loss_gen[1]*beta*x1.size()[0]/nb_train
         train_runningLosses[2]+=loss_gen[2]*lambdas[1]*x1.size()[0]/nb_train
         train_runningLosses[3]+=loss_dis*lambdas[1]*x1.size()[0]/nb_train
-        
-
-        #writer.add_scalars("Batch losses",
-        #{
-        #    'Reconstruction' : loss_gen[0]*lambdas[0],
-        #    'KLDiv' : loss_gen[1]*beta,
-        #    "Generator" : loss_gen[2]*lambdas[1],
-        #    "Discriminator" : loss_dis*lambdas[1]
-        #}, batchIdx)
-        batchIdx+=1
 
 
     # Saving the trained model

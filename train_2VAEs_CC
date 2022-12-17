@@ -32,21 +32,19 @@ writer = SummaryWriter(os.path.join('runs','test_2VAE_CC_GAN_1'))
 ## Training parameters
 
 # Number of Epochs
-epochs = 200
+epochs = 500
 # Learning rate
-lr = 1e-5
-# Reconstruction Loss (always use reduction='none')
-recons_criterion = torch.nn.MSELoss(reduction = 'none')
+lr = 1e-4
 
 # Beta-VAE Beta coefficient and warm up length
 beta_end = .5
-warm_up_length = 0 #epochs
+warm_up_length = 200 #epochs
 
 #Lambdas [VAE & CC, Gan, Latent]
 lambdas = [1,0]
 
 # Dataloaders parameters
-train_batch_size = 256
+train_batch_size = 64
 valid_batch_size = 1024
 num_threads = 0
 
@@ -71,7 +69,7 @@ freqs_dim = 128
 len_dim = 128
 
 
-device  = torch.device("cuda:2" if torch.cuda.is_available() else "cpu")
+device  = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 #device = 'cpu'
 print(device)
 
@@ -345,7 +343,6 @@ def computeLoss(model1, model2, x1, x2, device):
 
 beta = 0
 
-batchIdx = 0
 ## Training
 for epoch in range(epochs):
     
@@ -383,16 +380,6 @@ for epoch in range(epochs):
         train_runningLosses[1]+=loss_gen[1]*beta*x1.size()[0]/nb_train
         train_runningLosses[2]+=loss_gen[2]*lambdas[1]*x1.size()[0]/nb_train
         train_runningLosses[3]+=loss_dis*lambdas[1]*x1.size()[0]/nb_train
-        
-
-        #writer.add_scalars("Batch losses",
-        #{
-        #    'Reconstruction' : loss_gen[0]*lambdas[0],
-        #    'KLDiv' : loss_gen[1]*beta,
-        #    "Generator" : loss_gen[2]*lambdas[1],
-        #    "Discriminator" : loss_dis*lambdas[1]
-        #}, batchIdx)
-        batchIdx+=1
 
 
     # Saving the trained model
@@ -463,7 +450,6 @@ for epoch in range(epochs):
     writer.add_image("Set 2, model 1 output image", y21_grid, epoch)
 
     if (epoch+1)%5==0:
-        print('Exporting sound')
         x1_test = x1_test.to('cpu')
         x2_test = x2_test.to('cpu')
 
@@ -486,6 +472,5 @@ for epoch in range(epochs):
         writer.add_audio("Set 2, input audio", x2_test_sound, sample_rate=16000, global_step=epoch)
         writer.add_audio("Set 2, model1, output audio", y21_test_sound, sample_rate=16000, global_step=epoch)
         writer.add_audio("Set 2, model2, output audio", y22_test_sound, sample_rate=16000, global_step=epoch)
-        print('Exported !\n')
 writer.flush()
 writer.close()
