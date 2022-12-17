@@ -32,7 +32,7 @@ writer = SummaryWriter(os.path.join('runs','2VAEs'))
 ## Training parameters
 
 # Number of Epochs
-epochs = 500
+epochs = 1000
 # Learning rate
 lr = 1e-4
 
