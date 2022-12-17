@@ -97,8 +97,8 @@ valid_dataset = NSynthDoubleDataset(
 nb_train = len(train_dataset)
 nb_valid = len(valid_dataset)
 
-print(f"Number of training examples : {nb_train}")
-print(f"Number of validation examples : {nb_valid}")
+#print(f"Number of training examples : {nb_train}")
+#print(f"Number of validation examples : {nb_valid}")
 
 
 train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=train_batch_size, num_workers=num_threads, shuffle=True)
