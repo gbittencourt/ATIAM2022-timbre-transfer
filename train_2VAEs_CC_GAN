@@ -19,12 +19,12 @@ from torchinfo import summary
 
 from torch.utils.tensorboard import SummaryWriter
 
-dataset_folder = 'data'
+dataset_folder = os.path.join("/fast-1","atiam22-23")
 
 
-preTrained_loadNames = ["pretrained/test_come/vocal_1", "pretrained/test_come/string_1"]
-preTrained_saveName = ["pretrained/test_come/vocal_1", "pretrained/test_come/string_1"]
-writer = SummaryWriter(os.path.join('runs','test_come'))
+preTrained_loadNames = ["pretrained/2VAEs_CC_GAN/vocal_1", "pretrained/2VAEs_CC_GAN/string_1"]
+preTrained_saveName = ["pretrained/2VAEs_CC_GAN/vocal_1", "pretrained/2VAEs_CC_GAN/string_1"]
+writer = SummaryWriter(os.path.join('runs','2VAEs_CC_GAN'))
 
 
 ## Name of the saved trained network
@@ -32,9 +32,11 @@ writer = SummaryWriter(os.path.join('runs','test_come'))
 ## Training parameters
 
 # Number of Epochs
-epochs = 40
+epochs = 200
 # Learning rate
-lr = 1e-4
+lr = 1e-5
+# Reconstruction Loss (always use reduction='none')
+recons_criterion = torch.nn.MSELoss(reduction = 'none')
 
 # Beta-VAE Beta coefficient and warm up length
 beta_end = .5
@@ -44,7 +46,7 @@ warm_up_length = 0 #epochs
 lambdas = [1,50]
 
 # Dataloaders parameters
-train_batch_size = 8
+train_batch_size = 256
 valid_batch_size = 1024
 num_threads = 0
 
@@ -69,7 +71,7 @@ freqs_dim = 128
 len_dim = 128
 
 
-device  = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device  = torch.device("cuda:2" if torch.cuda.is_available() else "cpu")
 #device = 'cpu'
 print(device)
 
@@ -81,7 +83,7 @@ train_dataset = NSynthDoubleDataset(
     usage = 'train',
     filter_keys = ('vocal_acoustic', 'string_acoustic'),
     transform = AT,
-    length_style = 'min'
+    length_style = 'max'
 )
 
 valid_dataset = NSynthDoubleDataset(
