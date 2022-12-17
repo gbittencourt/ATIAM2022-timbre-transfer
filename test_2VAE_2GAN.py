@@ -32,7 +32,7 @@ writer = SummaryWriter(os.path.join('runs','test_2VAE_CC_GAN_1'))
 ## Training parameters
 
 # Number of Epochs
-epochs = 30
+epochs = 50
 # Learning rate
 lr = 1e-4
 # Reconstruction Loss (always use reduction='none')
