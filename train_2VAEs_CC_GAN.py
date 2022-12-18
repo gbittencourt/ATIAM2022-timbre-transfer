@@ -32,7 +32,7 @@ writer = SummaryWriter(os.path.join('runs','2VAEs_CC_GAN'))
 ## Training parameters
 
 # Number of Epochs
-epochs = 1000
+epochs = 400
 # Learning rate
 lr = 1e-4
 
@@ -449,7 +449,7 @@ for epoch in range(epochs):
     writer.add_image("Set 2, model 2 output image", y22_grid, epoch)
     writer.add_image("Set 2, model 1 output image", y21_grid, epoch)
 
-    if (epoch+1)%5==0:
+    if (epoch+1)%50==0:
         x1_test = x1_test.to('cpu')
         x2_test = x2_test.to('cpu')
 
@@ -465,12 +465,12 @@ for epoch in range(epochs):
         y11_test_sound = AT.inverse(mel = y11_test[0])
         y21_test_sound = AT.inverse(mel = y21_test[0])
 
-        writer.add_audio("Set 1, input audio", x1_test_sound, sample_rate=16000, global_step=epoch)
-        writer.add_audio("Set 1, model1, output audio", y11_test_sound, sample_rate=16000, global_step=epoch)
-        writer.add_audio("Set 1, model2, output audio", y12_test_sound, sample_rate=16000, global_step=epoch)
+        writer.add_audio("Set 1, input audio", x1_test_sound/torch.max(torch.abs(x1_test_sound)), sample_rate=16000, global_step=epoch)
+        writer.add_audio("Set 1, model1, output audio", y11_test_sound/torch.max(torch.abs(y11_test_sound)), sample_rate=16000, global_step=epoch)
+        writer.add_audio("Set 1, model2, output audio", y12_test_sound/torch.max(torch.abs(y12_test_sound)), sample_rate=16000, global_step=epoch)
 
-        writer.add_audio("Set 2, input audio", x2_test_sound, sample_rate=16000, global_step=epoch)
-        writer.add_audio("Set 2, model1, output audio", y21_test_sound, sample_rate=16000, global_step=epoch)
-        writer.add_audio("Set 2, model2, output audio", y22_test_sound, sample_rate=16000, global_step=epoch)
+        writer.add_audio("Set 2, input audio", x2_test_sound/torch.max(torch.abs(x2_test_sound)), sample_rate=16000, global_step=epoch)
+        writer.add_audio("Set 2, model1, output audio", y21_test_sound/torch.max(torch.abs(y21_test_sound)), sample_rate=16000, global_step=epoch)
+        writer.add_audio("Set 2, model2, output audio", y22_test_sound/torch.max(torch.abs(y22_test_sound)), sample_rate=16000, global_step=epoch)
 writer.flush()
 writer.close()

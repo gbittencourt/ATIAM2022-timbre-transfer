@@ -32,7 +32,7 @@ writer = SummaryWriter(os.path.join('runs','2VAEs'))
 ## Training parameters
 
 # Number of Epochs
-epochs = 1000
+epochs = 400
 # Learning rate
 lr = 1e-4
 
@@ -405,12 +405,12 @@ for epoch in range(epochs):
         y11_test_sound = AT.inverse(mel = y11_test[0])
         y21_test_sound = AT.inverse(mel = y21_test[0])
 
-        writer.add_audio("Set 1, input audio", x1_test_sound, sample_rate=16000, global_step=epoch)
-        writer.add_audio("Set 1, model1, output audio", y11_test_sound, sample_rate=16000, global_step=epoch)
-        writer.add_audio("Set 1, model2, output audio", y12_test_sound, sample_rate=16000, global_step=epoch)
+        writer.add_audio("Set 1, input audio", x1_test_sound/torch.max(torch.abs(x1_test_sound)), sample_rate=16000, global_step=epoch)
+        writer.add_audio("Set 1, model1, output audio", y11_test_sound/torch.max(torch.abs(y11_test_sound)), sample_rate=16000, global_step=epoch)
+        writer.add_audio("Set 1, model2, output audio", y12_test_sound/torch.max(torch.abs(y12_test_sound)), sample_rate=16000, global_step=epoch)
 
-        writer.add_audio("Set 2, input audio", x2_test_sound, sample_rate=16000, global_step=epoch)
-        writer.add_audio("Set 2, model1, output audio", y21_test_sound, sample_rate=16000, global_step=epoch)
-        writer.add_audio("Set 2, model2, output audio", y22_test_sound, sample_rate=16000, global_step=epoch)
+        writer.add_audio("Set 2, input audio", x2_test_sound/torch.max(torch.abs(x2_test_sound)), sample_rate=16000, global_step=epoch)
+        writer.add_audio("Set 2, model1, output audio", y21_test_sound/torch.max(torch.abs(y21_test_sound)), sample_rate=16000, global_step=epoch)
+        writer.add_audio("Set 2, model2, output audio", y22_test_sound/torch.max(torch.abs(y22_test_sound)), sample_rate=16000, global_step=epoch)
 writer.flush()
 writer.close()
