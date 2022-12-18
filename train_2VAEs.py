@@ -233,7 +233,7 @@ def trainStep(model1, model2, optimizer_gen, optimizer_dis_1, optimizer_dis_2, x
 
     optimizer_dis_1.zero_grad()
     optimizer_dis_2.zero_grad()
-    lossFull_discriminator.backward()
+    #lossFull_discriminator.backward()
     optimizer_dis_1.step()
     optimizer_dis_2.step()
 
@@ -389,7 +389,7 @@ for epoch in range(epochs):
     writer.add_image("Set 2, model 2 output image", y22_grid, epoch)
     writer.add_image("Set 2, model 1 output image", y21_grid, epoch)
 
-    if (epoch+1)%5==0:
+    if (epoch+1)%50==0:
         x1_test = x1_test.to('cpu')
         x2_test = x2_test.to('cpu')
 

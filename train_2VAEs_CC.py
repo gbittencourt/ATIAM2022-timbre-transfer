@@ -249,7 +249,7 @@ def trainStep(model1, model2, optimizer_gen, optimizer_dis_1, optimizer_dis_2, x
 
     optimizer_dis_1.zero_grad()
     optimizer_dis_2.zero_grad()
-    lossFull_discriminator.backward()
+    #lossFull_discriminator.backward()
     optimizer_dis_1.step()
     optimizer_dis_2.step()
 
