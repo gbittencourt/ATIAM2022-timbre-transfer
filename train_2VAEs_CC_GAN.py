@@ -102,7 +102,6 @@ nb_valid = len(valid_dataset)
 
 
 train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=train_batch_size, num_workers=num_threads, shuffle=True)
-
 valid_loader = torch.utils.data.DataLoader(dataset=valid_dataset, batch_size=valid_batch_size, num_workers=num_threads, shuffle=True)
 
 ## Model definition
