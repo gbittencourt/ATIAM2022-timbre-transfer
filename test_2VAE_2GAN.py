@@ -32,16 +32,16 @@ writer = SummaryWriter(os.path.join('runs','test_come_2'))
 ## Training parameters
 
 # Number of Epochs
-epochs = 40
+epochs = 100
 # Learning rate
 lr = 1e-4
 
 # Beta-VAE Beta coefficient and warm up length
 beta_end = 1
-warm_up_length = 20 #epochs
+warm_up_length = 50 #epochs
 
 #Lambdas [VAE & CC, Gan, Latent]
-lambdas = [1,30]
+lambdas = [1,100]
 
 # Dataloaders parameters
 train_batch_size = 64
@@ -73,15 +73,15 @@ device  = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 #device = 'cpu'
 print(device)
 
-AT = AudioTransform(input_freq = 16000, n_fft = 1024, n_mel = freqs_dim, stretch_factor=.8)
-
+AT = AudioTransform(input_freq = 16000, n_fft = 1024, n_mel = freqs_dim, stretch_factor=.8, device = device).to(device)
 ## Loading the NSynth dataset
 train_dataset = NSynthDoubleDataset(
     dataset_folder,
     usage = 'train',
     filter_keys = ('vocal_acoustic', 'string_acoustic'),
     transform = AT,
-    length_style = 'min'
+    length_style = 'min',
+    device = device
 )
 
 valid_dataset = NSynthDoubleDataset(
@@ -89,14 +89,15 @@ valid_dataset = NSynthDoubleDataset(
     usage = 'valid',
     filter_keys = ('vocal_acoustic', 'string_acoustic'),
     transform = AT,
-    length_style = 'max'
+    length_style = 'max',
+    device = device
 )
 
 nb_train = len(train_dataset)
 nb_valid = len(valid_dataset)
 
-#print(f"Number of training examples : {nb_train}")
-#print(f"Number of validation examples : {nb_valid}")
+print(f"Number of training examples : {nb_train}")
+print(f"Number of validation examples : {nb_valid}")
 
 
 train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=train_batch_size, num_workers=num_threads, shuffle=True)
@@ -183,7 +184,7 @@ summary(model1, input_size=(train_batch_size, 1, 128, 128))
 print('Encoder')
 summary(encoder)
 print('Decoder')
-print(decoder1)
+summary(decoder1)
 print('Discriminator')
 summary(discriminator1)
 
@@ -358,12 +359,10 @@ for epoch in range(epochs):
     else:
         beta = beta_end
 
-    AT = AT.to('cpu')
-
     for i, (x1, x2) in enumerate(iter(train_loader)):
         losses_plot = torch.zeros(4).to(device)
-        x1 = x1.to(device)
-        x2 = x2.to(device)
+        #x1 = x1.to(device)
+        #x2 = x2.to(device)
 
         
         loss_gen, loss_dis = trainStep(
@@ -389,8 +388,8 @@ for epoch in range(epochs):
 
     with torch.no_grad():
         for i, (x1, x2) in enumerate(iter(valid_loader)):
-            x1 = x1.to(device)
-            x2 = x2.to(device)
+            #x1 = x1.to(device)
+            #x2 = x2.to(device)
             
             loss_gen, loss_dis = computeLoss(model1, model2, x1, x2, device=device)
 
@@ -450,16 +449,8 @@ for epoch in range(epochs):
     writer.add_image("Set 2, model 2 output image", y22_grid, epoch)
     writer.add_image("Set 2, model 1 output image", y21_grid, epoch)
 
-    if (epoch+1)%5==0:
+    if (epoch+1)%20==0:
         print('Exporting sound')
-        x1_test = x1_test.to('cpu')
-        x2_test = x2_test.to('cpu')
-
-        y11_test = y11_test.to('cpu')
-        y12_test = y12_test.to('cpu')
-        y22_test = y22_test.to('cpu')
-        y21_test = y21_test.to('cpu')
-
         x1_test_sound = AT.inverse(mel = x1_test[0])
         x2_test_sound = AT.inverse(mel = x2_test[0])
         y12_test_sound = AT.inverse(mel = y12_test[0])

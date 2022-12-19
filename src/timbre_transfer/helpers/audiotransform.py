@@ -4,12 +4,15 @@ import torchaudio.transforms as ta
 import torchaudio.functional as tf
 import torchaudio
 
-class AudioTransform(torch.nn.Module):
-    def __init__(self,input_freq = 16000, n_fft=1024,n_mel=128,stretch_factor=0.8, maxi=11.56):
-        super().__init__()
-        self.spec = ta.Spectrogram(n_fft=n_fft, power=2)
 
+class AudioTransform(torch.nn.Module):
+    def __init__(self,input_freq = 16000, n_fft=1024,n_mel=128,stretch_factor=0.8, maxi=11.56, device = 'cpu'):
+        super().__init__()
+        self.n_fft = n_fft
+
+        self.spec = ta.Spectrogram(n_fft = n_fft, power = 2, window_fn= torch.hann_window)
         self.maxi = maxi
+        self.device = device
 
         self.spec_aug = torch.nn.Sequential(
             ta.TimeStretch(stretch_factor, fixed_rate=True),
@@ -27,7 +30,6 @@ class AudioTransform(torch.nn.Module):
         #self.mel_spec = ta.MelSpectrogram(sample_rate = input_freq,n_fft=n_fft,n_mels=64)
         
     def forward(self, wav: torch.Tensor): #-> torch.Tensor:
-
         # Convert to power spectrogram
         spec = self.spec(wav)
 
@@ -44,10 +46,10 @@ class AudioTransform(torch.nn.Module):
         if s[2]!=s[1]:
             n = s[2]//s[1]+1
             if n ==1:
-                new_mel = torch.zeros((s[0], s[1], s[1]))
+                new_mel = torch.zeros((s[0], s[1], s[1]), device = self.device)
                 new_mel[:,:,:s[2]] = mel
             else:
-                new_mel = torch.zeros((n, s[0], s[1], s[1]))
+                new_mel = torch.zeros((n, s[0], s[1], s[1]), device = self.device)
                 for i in range(n-1):
                     new_mel[i,:,:,:] = mel[:,:,i*s[1]:(i+1)*s[1]]
                 new_mel[n-1,:,:,:s[2]-(n-1)*s[1]] = mel[:,:,(n-1)*s[1]:]

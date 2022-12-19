@@ -138,7 +138,7 @@ class NSynthDoubleDataset(Dataset):
         - output_2 : second output
             """
     
-    def __init__(self, root_dir : str, usage = 'train', transform = None, filter_keys = None, normalization = None, length_style = 'min'):
+    def __init__(self, root_dir : str, usage = 'train', transform = None, filter_keys = None, normalization = None, length_style = 'min', device = 'cpu'):
         self.root_dir = root_dir
         train_valid_test = {
             'train' : 'nsynth/nsynth-train',
@@ -152,6 +152,7 @@ class NSynthDoubleDataset(Dataset):
         self.transform = transform
         self.normalization = normalization
         self.length_style = length_style
+        self.device = device
 
         self.file_names_list = [[], []]
         
@@ -191,10 +192,10 @@ class NSynthDoubleDataset(Dataset):
         
         if self.transform==None:
             for i in range(2):
-                outputs[i] = torch.Tensor(outputs[i])
+                outputs[i] = torch.Tensor(outputs[i]).to(self.device)
         else:
             for i in range(2):
-                outputs[i] = self.transform(torch.Tensor(outputs[i]))
+                outputs[i] = self.transform(torch.Tensor(outputs[i]).to(self.device))
         
         if self.normalization !=None:
             for i in range(2):

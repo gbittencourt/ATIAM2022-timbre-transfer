@@ -73,7 +73,7 @@ device  = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 #device = 'cpu'
 print(device)
 
-AT = AudioTransform(input_freq = 16000, n_fft = 1024, n_mel = freqs_dim, stretch_factor=.8)
+AT = AudioTransform(input_freq = 16000, n_fft = 1024, n_mel = freqs_dim, stretch_factor=.8, device = device).to(device)
 
 ## Loading the NSynth dataset
 train_dataset = NSynthDoubleDataset(
@@ -81,7 +81,8 @@ train_dataset = NSynthDoubleDataset(
     usage = 'train',
     filter_keys = ('vocal_acoustic', 'string_acoustic'),
     transform = AT,
-    length_style = 'max'
+    length_style = 'max',
+    device = device
 )
 
 valid_dataset = NSynthDoubleDataset(
@@ -89,7 +90,8 @@ valid_dataset = NSynthDoubleDataset(
     usage = 'valid',
     filter_keys = ('vocal_acoustic', 'string_acoustic'),
     transform = AT,
-    length_style = 'max'
+    length_style = 'max',
+    device = device
 )
 
 nb_train = len(train_dataset)
@@ -356,9 +358,7 @@ for epoch in range(epochs):
         beta = min(beta_end, epoch/warm_up_length*beta_end)
     else:
         beta = beta_end
-
-    AT = AT.to('cpu')
-
+    
     for i, (x1, x2) in enumerate(iter(train_loader)):
         losses_plot = torch.zeros(4).to(device)
         x1 = x1.to(device)
@@ -449,14 +449,7 @@ for epoch in range(epochs):
     writer.add_image("Set 2, model 2 output image", y22_grid, epoch)
     writer.add_image("Set 2, model 1 output image", y21_grid, epoch)
 
-    if (epoch+1)%50==0:
-        x1_test = x1_test.to('cpu')
-        x2_test = x2_test.to('cpu')
-
-        y11_test = y11_test.to('cpu')
-        y12_test = y12_test.to('cpu')
-        y22_test = y22_test.to('cpu')
-        y21_test = y21_test.to('cpu')
+    if (epoch+1)%40==0:
 
         x1_test_sound = AT.inverse(mel = x1_test[0])
         x2_test_sound = AT.inverse(mel = x2_test[0])
