@@ -22,9 +22,9 @@ from torch.utils.tensorboard import SummaryWriter
 dataset_folder = os.path.join("/fast-1","atiam22-23")
 
 
-preTrained_loadNames = ["pretrained/2VAEs/vocal_1", "pretrained/2VAEs/string_1"]
-preTrained_saveName = ["pretrained/2VAEs/vocal_1", "pretrained/2VAEs/string_1"]
-writer = SummaryWriter(os.path.join('runs','2VAEs'))
+preTrained_loadNames = ["pretrained/2VAEs/vocal_2", "pretrained/2VAEs/string_2"]
+preTrained_saveName = ["pretrained/2VAEs/vocal_2", "pretrained/2VAEs/string_2"]
+writer = SummaryWriter(os.path.join('runs','exp_2','2VAEs'))
 
 
 ## Name of the saved trained network
