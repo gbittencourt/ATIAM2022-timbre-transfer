@@ -32,13 +32,13 @@ writer = SummaryWriter(os.path.join('runs','2VAEs'))
 ## Training parameters
 
 # Number of Epochs
-epochs = 200
+epochs = 400
 # Learning rate
 lr = 1e-4
 
 # Beta-VAE Beta coefficient and warm up length
 beta_end = 1
-warm_up_length = 100 #epochs
+warm_up_length = 200 #epochs
 
 #Lambdas [VAE & CC, Gan, Latent]
 lambdas = [1,0]
@@ -319,10 +319,10 @@ for epoch in range(epochs):
             lambdas=lambdas,
             device=device)
         
-        train_runningLosses[0]+=loss_gen[0]*lambdas[0]*x1.size()[0]/nb_train
-        train_runningLosses[1]+=loss_gen[1]*beta*x1.size()[0]/nb_train
-        train_runningLosses[2]+=loss_gen[2]*lambdas[1]*x1.size()[0]/nb_train
-        train_runningLosses[3]+=loss_dis*lambdas[1]*x1.size()[0]/nb_train
+        train_runningLosses[0]+=loss_gen[0]*x1.size()[0]/nb_train
+        train_runningLosses[1]+=loss_gen[1]*x1.size()[0]/nb_train
+        train_runningLosses[2]+=loss_gen[2]*x1.size()[0]/nb_train
+        train_runningLosses[3]+=loss_dis*x1.size()[0]/nb_train
 
 
     # Saving the trained model
@@ -336,10 +336,10 @@ for epoch in range(epochs):
             
             loss_gen, loss_dis = computeLoss(model1, model2, x1, x2, device=device)
 
-            valid_runningLosses[0]+=loss_gen[0]*lambdas[0]*x1.size()[0]/nb_valid
-            valid_runningLosses[1]+=loss_gen[1]*beta*x1.size()[0]/nb_valid
-            valid_runningLosses[2]+=loss_gen[2]*lambdas[1]*x1.size()[0]/nb_valid
-            valid_runningLosses[3]+=loss_dis*lambdas[1]*x1.size()[0]/nb_valid
+            valid_runningLosses[0]+=loss_gen[0]*x1.size()[0]/nb_valid
+            valid_runningLosses[1]+=loss_gen[1]*x1.size()[0]/nb_valid
+            valid_runningLosses[2]+=loss_gen[2]*x1.size()[0]/nb_valid
+            valid_runningLosses[3]+=loss_dis*x1.size()[0]/nb_valid
 
 
     writer.add_scalars("VAE",{

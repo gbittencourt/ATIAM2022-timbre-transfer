@@ -262,24 +262,16 @@ def trainStep(model1, model2, optimizer_gen, optimizer_dis_1, optimizer_dis_2, x
     y11, kldiv11 = model1(x1)
     loss_generator[0] += MSE(y11, x1).mean(0).sum()
     loss_generator[1] += kldiv11.mean(0).sum()
-    if lambdas[1] !=0:
-        loss_generator[2] += computeLoss_generator(model1, y11)
 
     y22, kldiv22 = model2(x2)
     loss_generator[0] += MSE(y22, x2).mean(0).sum()
     loss_generator[1] += kldiv22.mean(0).sum()
-    if lambdas[1] !=0:
-        loss_generator[2] += computeLoss_generator(model2, y22)
 
-    y12, kldiv12 = model2(x1)
-    loss_generator[1] += kldiv12.mean(0).sum()
-    if lambdas[1] !=0:
-        loss_generator[2] += computeLoss_generator(model2, y12)
+    y12, _ = model2(x1)
+    #loss_generator[1] += kldiv12.mean(0).sum()
 
-    y21, kldiv21 = model1(x2)
-    loss_generator[1] += kldiv21.mean(0).sum()
-    if lambdas[1] !=0:
-        loss_generator[2] += computeLoss_generator(model1, y21)
+    y21, _ = model1(x2)
+    #loss_generator[1] += kldiv21.mean(0).sum()
 
     y121, kldiv121 = model1(y12)
     loss_generator[0] += MSE(y121, x1).mean(0).sum()
@@ -307,38 +299,24 @@ def computeLoss(model1, model2, x1, x2, device):
     loss_generator = torch.zeros(3, device = device)
 
     y11, kldiv11 = model1(x1)
-    loss_discriminator += computeLoss_discriminator(model1, x1, y11)
     loss_generator[0] += MSE(y11, x1).mean(0).sum()
     loss_generator[1] += kldiv11.mean(0).sum()
-    loss_generator[2] += computeLoss_generator(model1, y11)
 
     y22, kldiv22 = model2(x2)
-    loss_discriminator += computeLoss_discriminator(model2, x2, y22)
     loss_generator[0] += MSE(y22, x2).mean(0).sum()
     loss_generator[1] += kldiv22.mean(0).sum()
-    loss_generator[2] += computeLoss_generator(model2, y22)
 
     y12, kldiv12 = model2(x1)
-    loss_discriminator += computeLoss_discriminator(model2, x2, y12)
-    loss_generator[1] += kldiv12.mean(0).sum()
-    loss_generator[2] += computeLoss_generator(model2, y12)
 
     y21, kldiv21 = model1(x2)
-    loss_discriminator += computeLoss_discriminator(model1, x1, y21)
-    loss_generator[1] += kldiv21.mean(0).sum()
-    loss_generator[2] += computeLoss_generator(model1, y21)
 
     y121, kldiv121 = model1(y12)
-    loss_discriminator += computeLoss_discriminator(model1, x1, y121)
     loss_generator[0] += MSE(y121, x1).mean(0).sum()
     loss_generator[1] += kldiv121.mean(0).sum()
-    loss_generator[2] += computeLoss_generator(model1, y121)
     
     y212, kldiv212 = model1(y21)
-    loss_discriminator += computeLoss_discriminator(model2, x2, y212)
     loss_generator[0] += MSE(y212, x2).mean(0).sum()
     loss_generator[1] += kldiv212.mean(0).sum()
-    loss_generator[2] += computeLoss_generator(model2, y212)
 
     return loss_generator, loss_discriminator
 
@@ -376,10 +354,10 @@ for epoch in range(epochs):
             lambdas=lambdas,
             device=device)
         
-        train_runningLosses[0]+=loss_gen[0]*lambdas[0]*x1.size()[0]/nb_train
-        train_runningLosses[1]+=loss_gen[1]*beta*x1.size()[0]/nb_train
-        train_runningLosses[2]+=loss_gen[2]*lambdas[1]*x1.size()[0]/nb_train
-        train_runningLosses[3]+=loss_dis*lambdas[1]*x1.size()[0]/nb_train
+        train_runningLosses[0]+=loss_gen[0]*x1.size()[0]/nb_train
+        train_runningLosses[1]+=loss_gen[1]*x1.size()[0]/nb_train
+        train_runningLosses[2]+=loss_gen[2]*x1.size()[0]/nb_train
+        train_runningLosses[3]+=loss_dis*x1.size()[0]/nb_train
 
 
     # Saving the trained model
@@ -393,10 +371,10 @@ for epoch in range(epochs):
             
             loss_gen, loss_dis = computeLoss(model1, model2, x1, x2, device=device)
 
-            valid_runningLosses[0]+=loss_gen[0]*lambdas[0]*x1.size()[0]/nb_valid
-            valid_runningLosses[1]+=loss_gen[1]*beta*x1.size()[0]/nb_valid
-            valid_runningLosses[2]+=loss_gen[2]*lambdas[1]*x1.size()[0]/nb_valid
-            valid_runningLosses[3]+=loss_dis*lambdas[1]*x1.size()[0]/nb_valid
+            valid_runningLosses[0]+=loss_gen[0]*x1.size()[0]/nb_valid
+            valid_runningLosses[1]+=loss_gen[1]*x1.size()[0]/nb_valid
+            valid_runningLosses[2]+=loss_gen[2]*x1.size()[0]/nb_valid
+            valid_runningLosses[3]+=loss_dis*x1.size()[0]/nb_valid
 
 
     writer.add_scalars("VAE",{
