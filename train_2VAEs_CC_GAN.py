@@ -225,26 +225,19 @@ def trainStep(model1, model2, optimizer_gen, optimizer_dis_1, optimizer_dis_2, x
     #y11, kldiv11 = model1(x1)
     #if lambdas[1] !=0:
     #    loss_discriminator += computeLoss_discriminator(model1, x1, y11)
-#
+
     #y22, kldiv22 = model2(x2)
     #if lambdas[1] !=0:
     #    loss_discriminator += computeLoss_discriminator(model2, x2, y22)
-#
-    y12, _ = model2(x1)
-    #if lambdas[1] !=0:
-    #    loss_discriminator += computeLoss_discriminator(model2, x2, y12)
-#
-    y21, _ = model1(x2)
-    #if lambdas[1] !=0:
-    #    loss_discriminator += computeLoss_discriminator(model1, x1, y21)
 
-    y121, kldiv121 = model1(y12)
+    y12, _ = model2(x1)
     if lambdas[1] !=0:
-        loss_discriminator += computeLoss_discriminator(model1, x1, y121)
-    
-    y212, kldiv212 = model1(y21)
+        loss_discriminator += computeLoss_discriminator(model2, x2, y12)
+
+    y21, _ = model1(x2)
     if lambdas[1] !=0:
-        loss_discriminator += computeLoss_discriminator(model2, x2, y212)
+        loss_discriminator += computeLoss_discriminator(model1, x1, y21)
+
 
     lossFull_discriminator = lambdas[1]*loss_discriminator
 
@@ -272,25 +265,25 @@ def trainStep(model1, model2, optimizer_gen, optimizer_dis_1, optimizer_dis_2, x
 
     y12, _ = model2(x1)
     #loss_generator[1] += kldiv12.mean(0).sum()
-    #if lambdas[1] !=0:
-    #    loss_generator[2] += computeLoss_generator(model2, y12)
+    if lambdas[1] !=0:
+        loss_generator[2] += computeLoss_generator(model2, y12)
 
     y21, _ = model1(x2)
     #loss_generator[1] += kldiv21.mean(0).sum()
-    #if lambdas[1] !=0:
-    #    loss_generator[2] += computeLoss_generator(model1, y21)
+    if lambdas[1] !=0:
+        loss_generator[2] += computeLoss_generator(model1, y21)
 
     y121, kldiv121 = model1(y12)
     loss_generator[0] += MSE(y121, x1).mean(0).sum()
     loss_generator[1] += kldiv121.mean(0).sum()
-    if lambdas[1] !=0:
-        loss_generator[2] += computeLoss_generator(model1, y121)
+    #if lambdas[1] !=0:
+    #    loss_generator[2] += computeLoss_generator(model1, y121)
     
     y212, kldiv212 = model1(y21)
     loss_generator[0] += MSE(y212, x2).mean(0).sum()
     loss_generator[1] += kldiv212.mean(0).sum()
-    if lambdas[1] !=0:
-        loss_generator[2] += computeLoss_generator(model2, y212)
+    #if lambdas[1] !=0:
+    #    loss_generator[2] += computeLoss_generator(model2, y212)
     
     lossFull_generator = lambdas[0]*loss_generator[0] + beta*loss_generator[1] + lambdas[1]*loss_generator[2]
     optimizer_gen.zero_grad()
@@ -318,26 +311,26 @@ def computeLoss(model1, model2, x1, x2, device):
     #loss_generator[2] += computeLoss_generator(model2, y22)
 
     y12, kldiv12 = model2(x1)
-    #loss_discriminator += computeLoss_discriminator(model2, x2, y12)
+    loss_discriminator += computeLoss_discriminator(model2, x2, y12)
     loss_generator[1] += kldiv12.mean(0).sum()
-    #loss_generator[2] += computeLoss_generator(model2, y12)
+    loss_generator[2] += computeLoss_generator(model2, y12)
 
     y21, kldiv21 = model1(x2)
-    #loss_discriminator += computeLoss_discriminator(model1, x1, y21)
+    loss_discriminator += computeLoss_discriminator(model1, x1, y21)
     loss_generator[1] += kldiv21.mean(0).sum()
-    #loss_generator[2] += computeLoss_generator(model1, y21)
+    loss_generator[2] += computeLoss_generator(model1, y21)
 
     y121, kldiv121 = model1(y12)
-    loss_discriminator += computeLoss_discriminator(model1, x1, y121)
+    #loss_discriminator += computeLoss_discriminator(model1, x1, y121)
     loss_generator[0] += MSE(y121, x1).mean(0).sum()
     loss_generator[1] += kldiv121.mean(0).sum()
-    loss_generator[2] += computeLoss_generator(model1, y121)
+    #loss_generator[2] += computeLoss_generator(model1, y121)
     
     y212, kldiv212 = model1(y21)
-    loss_discriminator += computeLoss_discriminator(model2, x2, y212)
+    #loss_discriminator += computeLoss_discriminator(model2, x2, y212)
     loss_generator[0] += MSE(y212, x2).mean(0).sum()
     loss_generator[1] += kldiv212.mean(0).sum()
-    loss_generator[2] += computeLoss_generator(model2, y212)
+    #loss_generator[2] += computeLoss_generator(model2, y212)
 
     return loss_generator, loss_discriminator
 

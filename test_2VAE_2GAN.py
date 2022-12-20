@@ -230,11 +230,11 @@ def trainStep(model1, model2, optimizer_gen, optimizer_dis_1, optimizer_dis_2, x
     #if lambdas[1] !=0:
     #    loss_discriminator += computeLoss_discriminator(model2, x2, y22)
 #
-    y12, kldiv12 = model2(x1)
+    y12, _ = model2(x1)
     #if lambdas[1] !=0:
     #    loss_discriminator += computeLoss_discriminator(model2, x2, y12)
 #
-    y21, kldiv21 = model1(x2)
+    y21, _ = model1(x2)
     #if lambdas[1] !=0:
     #    loss_discriminator += computeLoss_discriminator(model1, x1, y21)
 
