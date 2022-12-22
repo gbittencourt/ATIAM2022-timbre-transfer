@@ -149,30 +149,6 @@ MSE = torch.nn.L1Loss(reduction = 'none')
 def norm(x):
     return x/torch.max(torch.abs(x))
 
-def computeLoss(model1, model2, x1, x2, device):
-    ## Computing the discriminator loss
-    #loss_generator  = [Recons, KLDiv, Adversarial] 
-    loss_generator = torch.zeros(2, device = device)
-
-    y11, _ = model1(x1)
-    loss_generator[0] += MSE(y11, x1).mean(0).sum()
-
-    y22, _ = model2(x2)
-    loss_generator[0] += MSE(y22, x2).mean(0).sum()
-
-    y12, _ = model2(x1)
-
-    y21, _ = model1(x2)
-
-    y121, _ = model1(y12)
-    loss_generator[1] += MSE(y121, x1).mean(0).sum()
-    
-    y212, _ = model1(y21)
-    loss_generator[1] += MSE(y212, x2).mean(0).sum()
-
-    return loss_generator
-
-
 x1_test, x2_test = next(iter(valid_loader))
 x1_test = x1_test[:800:100].to(device)
 x2_test = x2_test[:800:100].to(device)
@@ -249,7 +225,7 @@ def computeLoss(model1, model2, x1, x2, device):
     y121, _ = model1(y12)
     loss_generator[2] += MSE(y121, x1).mean(0).sum()
     
-    y212, _ = model1(y21)
+    y212, _ = model2(y21)
     loss_generator[3] += MSE(y212, x2).mean(0).sum()
 
     return loss_generator
