@@ -22,9 +22,9 @@ from torch.utils.tensorboard import SummaryWriter
 dataset_folder = 'data'
 
 
-preTrained_loadNames = ["pretrained/test_come/vocal_3", "pretrained/test_come/string_3"]
-preTrained_saveName = ["pretrained/test_come/vocal_3", "pretrained/test_come/string_3"]
-writer = SummaryWriter(os.path.join('runs','test_come_3'))
+preTrained_loadNames = ["pretrained/test_come/vocal_4", "pretrained/test_come/string_4"]
+preTrained_saveName = ["pretrained/test_come/vocal_4", "pretrained/test_come/string_4"]
+writer = SummaryWriter(os.path.join('runs','test_come_4'))
 
 
 ## Name of the saved trained network
@@ -37,14 +37,14 @@ epochs = 100
 lr = 1e-4
 
 # Beta-VAE Beta coefficient and warm up length
-beta_end = 1
+beta_end = .5
 warm_up_length = 50 #epochs
 
 #Lambdas [VAE & CC, Gan, Latent]
-lambdas = [1,1]
+lambdas = [1,1000]
 
 # Dataloaders parameters
-train_batch_size = 64
+train_batch_size = 128
 valid_batch_size = 1024
 num_threads = 0
 
@@ -80,7 +80,7 @@ train_dataset = NSynthDoubleDataset(
     usage = 'train',
     filter_keys = ('vocal_acoustic', 'string_acoustic'),
     transform = AT,
-    length_style = 'max',
+    length_style = 'min',
     device = device
 )
 
@@ -222,21 +222,9 @@ def trainStep(model1, model2, optimizer_gen, optimizer_dis_1, optimizer_dis_2, x
     ## Computing the discriminator loss
     loss_discriminator = 0
 
-    #y11, kldiv11 = model1(x1)
-    #if lambdas[1] !=0:
-    #    loss_discriminator += computeLoss_discriminator(model1, x1, y11)
-#
-    #y22, kldiv22 = model2(x2)
-    #if lambdas[1] !=0:
-    #    loss_discriminator += computeLoss_discriminator(model2, x2, y22)
-#
     y12, _ = model2(x1)
-    #if lambdas[1] !=0:
-    #    loss_discriminator += computeLoss_discriminator(model2, x2, y12)
-#
+
     y21, _ = model1(x2)
-    #if lambdas[1] !=0:
-    #    loss_discriminator += computeLoss_discriminator(model1, x1, y21)
 
     y121, kldiv121 = model1(y12)
     if lambdas[1] !=0:
@@ -261,24 +249,14 @@ def trainStep(model1, model2, optimizer_gen, optimizer_dis_1, optimizer_dis_2, x
     y11, kldiv11 = model1(x1)
     loss_generator[0] += MSE(y11, x1).mean(0).sum()
     loss_generator[1] += kldiv11.mean(0).sum()
-    #if lambdas[1] !=0:
-    #    loss_generator[2] += computeLoss_generator(model1, y11)
 
     y22, kldiv22 = model2(x2)
     loss_generator[0] += MSE(y22, x2).mean(0).sum()
     loss_generator[1] += kldiv22.mean(0).sum()
-    #if lambdas[1] !=0:
-    #    loss_generator[2] += computeLoss_generator(model2, y22)
 
-    y12, kldiv12 = model2(x1)
-    #loss_generator[1] += kldiv12.mean(0).sum()
-    #if lambdas[1] !=0:
-    #    loss_generator[2] += computeLoss_generator(model2, y12)
+    y12, _ = model2(x1)
 
-    y21, kldiv21 = model1(x2)
-    #loss_generator[1] += kldiv21.mean(0).sum()
-    #if lambdas[1] !=0:
-    #    loss_generator[2] += computeLoss_generator(model1, y21)
+    y21, _ = model1(x2)
 
     y121, kldiv121 = model1(y12)
     loss_generator[0] += MSE(y121, x1).mean(0).sum()

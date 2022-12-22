@@ -41,7 +41,7 @@ beta_end = .5
 warm_up_length = 200 #epochs
 
 #Lambdas [VAE & CC, Gan, Latent]
-lambdas = [1,30]
+lambdas = [1,200]
 
 # Dataloaders parameters
 train_batch_size = 64
