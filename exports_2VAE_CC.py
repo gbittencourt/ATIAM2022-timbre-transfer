@@ -18,7 +18,7 @@ from torch.utils.tensorboard import SummaryWriter
 dataset_folder = os.path.join("/fast-1","atiam22-23")
 
 
-preTrained_loadNames = ["pretrained/exp_2/exp_2_VAE_GAN/vocal_2", "pretrained/exp_2/exp_2_VAE_GAN/string_2"]
+preTrained_loadNames = ["pretrained/exp_2/2VAEs_CC/vocal_2", "pretrained/exp_2/2VAEs_CC/string_2"]
 writer = SummaryWriter(os.path.join('runs', 'exports', '2VAEs_CC'))
 
 
