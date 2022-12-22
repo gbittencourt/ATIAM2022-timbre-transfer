@@ -41,7 +41,7 @@ beta_end = 1
 warm_up_length = 50 #epochs
 
 #Lambdas [VAE & CC, Gan, Latent]
-lambdas = [1,.1]
+lambdas = [1,1]
 
 # Dataloaders parameters
 train_batch_size = 64
@@ -80,7 +80,7 @@ train_dataset = NSynthDoubleDataset(
     usage = 'train',
     filter_keys = ('vocal_acoustic', 'string_acoustic'),
     transform = AT,
-    length_style = 'min',
+    length_style = 'max',
     device = device
 )
 
@@ -182,11 +182,11 @@ summary(model1, input_size=(train_batch_size, 1, 128, 128))
 #summary(model2, input_size=(train_batch_size, 1, 128, 128))
 
 print('Encoder')
-summary(encoder)
+summary(encoder, input_size=(train_batch_size, 1, 128, 128))
 print('Decoder')
-summary(decoder1)
+summary(decoder1, input_size=(train_batch_size, latent_dim))
 print('Discriminator')
-summary(discriminator1)
+summary(discriminator1, input_size=(train_batch_size, 1, 128, 128))
 
 print('\n')
 

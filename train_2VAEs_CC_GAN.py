@@ -181,12 +181,12 @@ summary(model1, input_size=(train_batch_size, 1, 128, 128))
 #print('Model 2')
 #summary(model2, input_size=(train_batch_size, 1, 128, 128))
 
-print('Encoder')
-summary(encoder)
-print('Decoder')
-print(decoder1)
-print('Discriminator')
-summary(discriminator1)
+#print('Encoder')
+#summary(encoder)
+#print('Decoder')
+#print(decoder1)
+#print('Discriminator')
+#summary(discriminator1)
 
 print('\n')
 
