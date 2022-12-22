@@ -18,7 +18,7 @@ from torch.utils.tensorboard import SummaryWriter
 dataset_folder = os.path.join("/fast-1","atiam22-23")
 
 
-preTrained_loadNames = ["pretrained/2VAEs/vocal_2", "pretrained/2VAEs/string_2"]
+preTrained_loadNames = ["pretrained/exp_2/2VAEs/vocal_2", "pretrained/exp_2/2VAEs/string_2"]
 writer = SummaryWriter(os.path.join('runs', 'exports', '2VAEs'))
 
 
@@ -45,7 +45,7 @@ max_depth = 512
 # Number of convolutionnal layers
 n_convLayers = 3
 # Kernel size of convolutionnal layers (recommended : stride*2+3)
-kernel_size = 11
+kernel_size = 15
 # Stride of convolutionnal layers (recommended : 2 or 4)
 stride = 4
 # Models returns images of size freqs_dim*len_dim
