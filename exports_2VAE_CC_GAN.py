@@ -39,7 +39,7 @@ hidden_dim = 256
 # Dimension of the latent space
 latent_dim = 16
 # Number of filters of the first convolutionnal layer
-base_depth = 64
+base_depth = 32
 # Max number of channels of te convolutionnal layers
 max_depth = 512
 # Number of convolutionnal layers
