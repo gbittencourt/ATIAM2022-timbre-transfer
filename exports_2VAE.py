@@ -15,7 +15,7 @@ from src.timbre_transfer.models.VAE_GAN import SpectralVAE_GAN
 
 from torch.utils.tensorboard import SummaryWriter
 
-dataset_folder = 'data'
+dataset_folder = os.path.join("/fast-1","atiam22-23")
 
 
 preTrained_loadNames = ["pretrained/2VAEs/vocal_2", "pretrained/2VAEs/string_2"]
