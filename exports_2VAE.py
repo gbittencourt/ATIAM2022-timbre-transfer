@@ -143,7 +143,7 @@ print('\n')
 model1 = model1.to(device)
 model2 = model2.to(device)
 
-MSE = torch.nn.MSELoss(reduction = 'none')
+MSE = torch.nn.L1Loss(reduction = 'none')
 
 def norm(x):
     return x/torch.max(torch.abs(x))
