@@ -39,13 +39,13 @@ hidden_dim = 256
 # Dimension of the latent space
 latent_dim = 16
 # Number of filters of the first convolutionnal layer
-base_depth = 32
+base_depth = 64
 # Max number of channels of te convolutionnal layers
 max_depth = 512
 # Number of convolutionnal layers
 n_convLayers = 3
 # Kernel size of convolutionnal layers (recommended : stride*2+3)
-kernel_size = 15
+kernel_size = 11
 # Stride of convolutionnal layers (recommended : 2 or 4)
 stride = 4
 # Models returns images of size freqs_dim*len_dim
