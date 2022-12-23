@@ -5,32 +5,40 @@
     <title>Timbre transfer</title>
 </head>
 
-<body>
+<body style="background-color:black">
 
     <header>
         <h1>Can you speak like a violin?</h1>
         <h2>Using a voice conversion method to perform timbre translation on musical sounds.</h2>
     </header>
 
-    <h3>Test x</h3>
+    <h3>Inputs</h3>
 
     <script type="text/javascript">
-        for (var i = 1; i < 3; i++) {
-            document.body.innerHTML += '<p>Spectogram x' + i + '<br><img src="assets/x' + i + '.png" alt="Spectogram x' + i + '."></p>'
-            document.body.innerHTML += '<p>Audios x' + i +'</p>'
-            for (var k = 0; k < 8; k++) {
-                document.body.innerHTML += '<audio src="assets/x' + i + '_' + k + '.wav" type="audio/mpeg" controls>Your browser does not support the audio element</audio>'
-            };
+        document.body.innerHTML += '<p>Input x1: Voice dataset</p>
+        document.body.innerHTML += '<p>Spectograms of 8 samples<br><img src="assets/x1.png" alt="Spectogram Voice"></p>'
+        document.body.innerHTML += '<p>Samples</p>'
+        for (var k = 0; k < 8; k++) {
+            document.body.innerHTML += '<audio src="assets/x1_' + k + '.wav" type="audio/mpeg" controls>Your browser does not support the audio element</audio>'
+        };
+        
+        document.body.innerHTML += '<p>Input x2: Violin dataset</p>
+        document.body.innerHTML += '<p>Spectograms of 8 samples<br><img src="assets/x2.png" alt="Spectogram Violin"></p>'
+        document.body.innerHTML += '<p>Samples</p>'
+        for (var k = 0; k < 8; k++) {
+            document.body.innerHTML += '<audio src="assets/x2_' + k + '.wav" type="audio/mpeg" controls>Your browser does not support the audio element</audio>'
         };
     </script>
     
     <h3>Test VAEs</h3>
 
     <script type="text/javascript">
+        var audio_src = [Voice; Violin]
         for (var i = 1; i < 3; i++) {
             for (var j = 1; j < 3; j++) {
-                document.body.innerHTML += '<p>Spectogram y' + i + '' + j + '<br><img src="assets/2VAEs/y' + i + '' + j + '.png" alt="Spectogram y' + i + '' + j + '."></p>'
-                document.body.innerHTML += '<p>Audios y' + i + '' + j + '</p>'
+                document.body.innerHTML += '<p>Model origin domain: ' + audio_src[i] + ' dataset and target domain: ' + audio_src[j] + 'dataset</p>'
+                document.body.innerHTML += '<p>Spectograms <br><img src="assets/2VAEs/y' + i + '' + j + '.png" alt="Spectogram y' + i + '' + j + '."></p>'
+                document.body.innerHTML += '<p>Audios</p>'
                 for (var k = 0; k < 8; k++) {
                     document.body.innerHTML += '<audio src="assets/2VAEs/y' + i + '' + j + '_' + k + '.wav" type="audio/mpeg" controls>Your browser does not support the audio element</audio>'
                 };
