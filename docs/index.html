@@ -53,7 +53,7 @@
         for (var i = 1; i < 3; i++) {
             for (var j = 1; j < 3; j++) {
                 let config_model = i + i + j - 2;
-                document.body.innerHTML += '<p style="color:white;">' + config_model + '. Model origin domain: ' + audio_src_vae[i-1] + ' dataset and target domain: ' + audio_src_vae[j-1] + '.</p>'
+                document.body.innerHTML += '<h4 style="color:white;">' + config_model + '. Model origin domain: ' + audio_src_vae[i-1] + ' dataset and target domain: ' + audio_src_vae[j-1] + '.</h4>'
                 for (var k = 0; k < 8; k++) {
                     document.body.innerHTML += '<audio src="assets/2VAEs/y' + i + '' + j + '_' + k + '.wav" type="audio/mpeg" controls>Your browser does not support the audio element</audio>'
                 };
@@ -68,12 +68,12 @@
         const audio_src_vae_cc = ["Voice", "Violin"];
         for (var i = 1; i < 3; i++) {
             for (var j = 1; j < 3; j++) {
-                document.body.innerHTML += '<p style="color:white;">Model origin domain: ' + audio_src_vae_cc[i-1] + ' dataset and target domain: ' + audio_src_vae_cc[j-1] + '.</p>'
-                document.body.innerHTML += '<p style="color:white;">Spectograms <br><img src="assets/2VAEs_CC/y' + i + '' + j + '.png" alt="Spectogram VAEs_CC y' + i + '' + j + '."></p>'
-                document.body.innerHTML += '<p style="color:white;">Audios</p>'
+                let config_model = i + i + j - 2;
+                document.body.innerHTML += '<h4 style="color:white;">' + config_model + '. Model origin domain: ' + audio_src_vae_cc[i-1] + ' dataset and target domain: ' + audio_src_vae_cc[j-1] + '.</h4>'
                 for (var k = 0; k < 8; k++) {
                     document.body.innerHTML += '<audio src="assets/2VAEs_CC/y' + i + '' + j + '_' + k + '.wav" type="audio/mpeg" controls>Your browser does not support the audio element</audio>'
                 };
+                document.body.innerHTML += '<p style="color:white;">Their respectives spectograms: <br><img src="assets/2VAEs_CC/y' + i + '' + j + '.png" alt="Spectogram VAEs_CC y' + i + '' + j + '."></p>'
             };
         };
     </script>
@@ -84,12 +84,12 @@
         const audio_src_vae_cc_gan = ["Voice", "Violin"];
         for (var i = 1; i < 3; i++) {
             for (var j = 1; j < 3; j++) {
-                document.body.innerHTML += '<p style="color:white;">Model origin domain: ' + audio_src_vae_cc_gan[i-1] + ' dataset and target domain: ' + audio_src_vae_cc_gan[j-1] + '.</p>'
-                document.body.innerHTML += '<p style="color:white;">Spectograms <br><img src="assets/2VAEs_CC_GAN/y' + i + '' + j + '.png" alt="Spectogram VAEs_CC_GAN y' + i + '' + j + '."></p>'
-                document.body.innerHTML += '<p style="color:white;">Audios</p>'
+                let config_model = i + i + j - 2;
+                document.body.innerHTML += '<h4 style="color:white;">' + config_model + '. Model origin domain: ' + audio_src_vae_cc_gan[i-1] + ' dataset and target domain: ' + audio_src_vae_cc_gan[j-1] + '.</h4>'
                 for (var k = 0; k < 8; k++) {
                     document.body.innerHTML += '<audio src="assets/2VAEs_CC_GAN/y' + i + '' + j + '_' + k + '.wav" type="audio/mpeg" controls>Your browser does not support the audio element</audio>'
                 };
+                document.body.innerHTML += '<p style="color:white;">Their respectives spectograms: <br><img src="assets/2VAEs_CC_GAN/y' + i + '' + j + '.png" alt="Spectogram VAEs_CC_GAN y' + i + '' + j + '."></p>'
             };
         };
     </script>
