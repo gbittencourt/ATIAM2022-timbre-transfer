@@ -1,3 +1,4 @@
-theme: minimal
+markdown: kramdown
+theme: jekyll-theme-minimal
 title: Can you speak like a violin?
 description: sing a voice conversion method to perform timbre translation on musical sounds.
