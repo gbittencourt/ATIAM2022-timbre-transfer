@@ -58,3 +58,7 @@ Dataset files hierarchy (here, the root_dir is named "data", as shown on the Pyt
 2VAEs + CC + GAN : `python exports_2VAE_CC_GAN.py`
 
 *** 
+
+Audio results presented in <https://gbittencourt.github.io/ATIAM2022-timbre-transfer/>
+
+***
