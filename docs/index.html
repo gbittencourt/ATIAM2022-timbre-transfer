@@ -10,24 +10,25 @@
     <header style="background-color:whitesmoke">
         <h1>Can you speak like a violin?</h1>
         <h2>Using a voice conversion method to perform timbre translation on musical sounds.</h2>
+        <p>Here you will find some results produced by a <a href="https://github.com/gbittencourt/ATIAM2022-timbre-transfer">timbre transfert project</a>. The presented samples on this page are presented on datasets of 8 samples with their audio and respectives spectograms</p>
     </header>
     
     <h3 style="background-color:darkgray">Inputs</h3>
+    
+    <p>Used input dataset: 8 audio samples of voice and 8 audio samples of violin</p>
 
     <script type="text/javascript">
-        document.body.innerHTML += '<p style="color:white;">Input x1: Voice dataset</p>'
-        document.body.innerHTML += '<p style="color:white;">Spectograms of 8 samples<br><img src="assets/x1.png" alt="Spectogram Voice"></p>'
-        document.body.innerHTML += '<p style="color:white;">Samples</p>'
+        document.body.innerHTML += '<p style="color:white;">Input: voice dataset - 8 audio samples</p>'
         for (var k = 0; k < 8; k++) {
             document.body.innerHTML += '<audio src="assets/x1_' + k + '.wav" type="audio/mpeg" controls>Your browser does not support the audio element</audio>'
         };
+        document.body.innerHTML += '<p style="color:white;">Their respectives spectograms:<br><img src="assets/x1.png" alt="Spectogram Voice"></p>'
         
-        document.body.innerHTML += '<p style="color:white;">Input x2: Violin dataset</p>'
-        document.body.innerHTML += '<p style="color:white;">Spectograms of 8 samples<br><img src="assets/x2.png" alt="Spectogram Violin"></p>'
-        document.body.innerHTML += '<p style="color:white;">Samples</p>'
+        document.body.innerHTML += '<p style="color:white;">Input: violin dataset - 8 audio samples</p>'
         for (var k = 0; k < 8; k++) {
             document.body.innerHTML += '<audio src="assets/x2_' + k + '.wav" type="audio/mpeg" controls>Your browser does not support the audio element</audio>'
         };
+        document.body.innerHTML += '<p style="color:white;">Their respectives spectograms:<br><img src="assets/x1.png" alt="Spectogram Violin"></p>'
     </script>
     
     <h3 style="background-color:darkgray">Test VAEs</h3>
