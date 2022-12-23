@@ -18,7 +18,7 @@ from torch.utils.tensorboard import SummaryWriter
 dataset_folder = os.path.join("/fast-1","atiam22-23")
 
 
-preTrained_loadNames = ["pretrained/exp_2/2VAEs_CC_GAN/vocal_2", "pretrained/exp_2/2VAEs_CC_GAN/string_2"]
+preTrained_loadNames = ["pretrained/2VAEs_CC_GAN/vocal_2", "pretrained/2VAEs_CC_GAN/string_2"]
 writer = SummaryWriter(os.path.join('runs', 'exports', '2VAEs_CC_GAN'))
 
 
@@ -142,8 +142,6 @@ print('\n')
 
 model1 = model1.to(device)
 model2 = model2.to(device)
-
-MSE = torch.nn.MSELoss(reduction = 'none')
 
 def norm(x):
     return x/torch.max(torch.abs(x))
