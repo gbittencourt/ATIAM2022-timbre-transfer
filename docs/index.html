@@ -24,7 +24,7 @@
         };
     </script>
     
-    <h3>Test VAE</h3>
+    <h3>Test VAEs</h3>
 
     <script type="text/javascript">
         for (var i = 1; i < 3; i++) {
@@ -33,6 +33,34 @@
                 document.body.innerHTML += '<p>Audios y' + i + '' + j + '</p>'
                 for (var k = 0; k < 8; k++) {
                     document.body.innerHTML += '<audio src="assets/2VAEs/y' + i + '' + j + '_' + k + '.wav" type="audio/mpeg" controls>Your browser does not support the audio element</audio>'
+                };
+            };
+        };
+    </script>
+    
+    <h3>Test VAEs_CC</h3>
+
+    <script type="text/javascript">
+        for (var i = 1; i < 3; i++) {
+            for (var j = 1; j < 3; j++) {
+                document.body.innerHTML += '<p>Spectogram y' + i + '' + j + '<br><img src="assets/2VAEs_CC/y' + i + '' + j + '.png" alt="Spectogram y' + i + '' + j + '."></p>'
+                document.body.innerHTML += '<p>Audios y' + i + '' + j + '</p>'
+                for (var k = 0; k < 8; k++) {
+                    document.body.innerHTML += '<audio src="assets/2VAEs_CC/y' + i + '' + j + '_' + k + '.wav" type="audio/mpeg" controls>Your browser does not support the audio element</audio>'
+                };
+            };
+        };
+    </script>
+        
+    <h3>Test VAEs_CC_GAN</h3>
+
+    <script type="text/javascript">
+        for (var i = 1; i < 3; i++) {
+            for (var j = 1; j < 3; j++) {
+                document.body.innerHTML += '<p>Spectogram y' + i + '' + j + '<br><img src="assets/2VAEs_CC_GAN/y' + i + '' + j + '.png" alt="Spectogram y' + i + '' + j + '."></p>'
+                document.body.innerHTML += '<p>Audios y' + i + '' + j + '</p>'
+                for (var k = 0; k < 8; k++) {
+                    document.body.innerHTML += '<audio src="assets/2VAEs_CC_GAN/y' + i + '' + j + '_' + k + '.wav" type="audio/mpeg" controls>Your browser does not support the audio element</audio>'
                 };
             };
         };
