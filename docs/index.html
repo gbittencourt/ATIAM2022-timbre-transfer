@@ -32,11 +32,19 @@
     </script>
     
     <p style="color:white">Using the presented datasets, the model was treined with 3 different loss functions:</p>
-    <ul>
-        <li style="color:white;">$\lambda_1 \mathcal{L}_{\text{VAE}}$</li>
-        <li style="color:white;">$\lambda_1 \mathcal{L}_{\text{VAE}} + \lambda_1 \mathcal{L}_{\text{CC}}$</li>
-        <li style="color:white;">$\mathcal{L} = \lambda_1 \mathcal{L}_{\text{VAE}} + \lambda_1 \mathcal{L}_{\text{CC}} + \lambda_2 \mathcal{L}_{\text{GAN}}$</li>
+    <ul style="color:white;">
+        <li>$\lambda_1 \mathcal{L}_{\text{VAE}}$</li>
+        <li>$\lambda_1 \mathcal{L}_{\text{VAE}} + \lambda_1 \mathcal{L}_{\text{CC}}$</li>
+        <li>$\mathcal{L} = \lambda_1 \mathcal{L}_{\text{VAE}} + \lambda_1 \mathcal{L}_{\text{CC}} + \lambda_2 \mathcal{L}_{\text{GAN}}$</li>
     </ul>
+    
+    <p style="color:white">For each loss function there were produced audios from 4 configurations</p>
+    <ol style="color:white;">
+        <li>original audio from voice database (encoder) and create a voiced audio (decoder)</li>
+        <li>original audio from voice database (encoder) and create a violin audio (decoder)</li>
+        <li>original audio from violin database (encoder) and create a voiced audio (decoder)</li>
+        <li>original audio from violin database (encoder) and create a violin audio (decoder)</li>
+    </ol>
     
     <h3 style="color:darkgray">Test VAEs</h3>
 
