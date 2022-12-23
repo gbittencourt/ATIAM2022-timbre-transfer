@@ -34,5 +34,25 @@ Dataset files hierarchy (here, the root_dir is named "data", as shown on the Pyt
             - audio/
                 - All audio files (.wav) used for validating
 ***
-
 `source /miniconda/bin/activate`
+
+
+***
+
+## How to train the model ?
+
+2VAEs : `python train_2VAEs.py`
+
+2VAEs + CC : `python train_2VAEs_CC.py`
+
+2VAEs + CC + GAN : `python train_2VAEs_CC_GAN.py`
+
+***
+
+## How to export some sounds and spectrograms ?
+
+2VAEs : `python exports_2VAE.py`
+
+2VAEs + CC : `python exports_2VAE_CC.py`
+
+2VAEs + CC + GAN : `python exports_2VAE_CC_GAN.py`
