@@ -29,55 +29,7 @@
             document.body.innerHTML += '<audio src="assets/x2_' + k + '.wav" type="audio/mpeg" controls>Your browser does not support the audio element</audio>'
         };
     </script>
-    
-    <h3 style="background-color:gray">Test VAEs</h3>
 
-    <script type="text/javascript">
-        var audio_src = ['Voice'; 'Violin']
-        for (var i = 1; i < 3; i++) {
-            for (var j = 1; j < 3; j++) {
-                text = "Model origin domain: ' + audio_src[i] + ' dataset and target domain: ' + audio_src[j] + 'dataset"; 
-                document.body.innerHTML += '<p style="color:white;">'{text}'</p>'
-                document.body.innerHTML += '<p style="color:white;">Spectograms <br><img src="assets/2VAEs/y' + i + '' + j + '.png" alt="Spectogram VAEs y' + i + '' + j + '."></p>'
-                document.body.innerHTML += '<p style="color:white;">Audios</p>'
-                for (var k = 0; k < 8; k++) {
-                    document.body.innerHTML += '<audio src="assets/2VAEs/y' + i + '' + j + '_' + k + '.wav" type="audio/mpeg" controls>Your browser does not support the audio element</audio>'
-                };
-            };
-        };
-    </script>
-    
-    <h3 style="background-color:gray">Test VAEs CC</h3>
-
-    <script type="text/javascript">
-        var audio_src = ['Voice'; 'Violin']
-        for (var i = 1; i < 3; i++) {
-            for (var j = 1; j < 3; j++) {
-                document.body.innerHTML += '<p style="color:white;">Model origin domain: ' + audio_src[i] + ' dataset and target domain: ' + audio_src[j] + 'dataset</p>'
-                document.body.innerHTML += '<p style="color:white;">Spectograms <br><img src="assets/2VAEs_CC/y' + i + '' + j + '.png" alt="Spectogram VAEs_CC y' + i + '' + j + '."></p>'
-                document.body.innerHTML += '<p style="color:white;">Audios</p>'
-                for (var k = 0; k < 8; k++) {
-                    document.body.innerHTML += '<audio src="assets/2VAEs_CC/y' + i + '' + j + '_' + k + '.wav" type="audio/mpeg" controls>Your browser does not support the audio element</audio>'
-                };
-            };
-        };
-    </script>
-    
-    <h3 style="background-color:gray">Test VAEs CC GAN</h3>
-
-    <script type="text/javascript">
-        var audio_src = ["Voice"; "Violin"]
-        for (var i = 1; i < 3; i++) {
-            for (var j = 1; j < 3; j++) {
-                document.body.innerHTML += '<p style="color:white;">Model origin domain: ' + audio_src[i] + ' dataset and target domain: ' + audio_src[j] + 'dataset</p>'
-                document.body.innerHTML += '<p style="color:white;">Spectograms <br><img src="assets/2VAEs_CC_GAN/y' + i + '' + j + '.png" alt="Spectogram VAEs_CC_GAN y' + i + '' + j + '."></p>'
-                document.body.innerHTML += '<p style="color:white;">Audios</p>'
-                for (var k = 0; k < 8; k++) {
-                    document.body.innerHTML += '<audio src="assets/2VAEs_CC_GAN/y' + i + '' + j + '_' + k + '.wav" type="audio/mpeg" controls>Your browser does not support the audio element</audio>'
-                };
-            };
-        };
-    </script>
 
 </body>
 </html> 
