@@ -4,14 +4,16 @@
 <head>
     <title>Timbre transfer</title>
 </head>
-
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
-</script>
-
-<body style="background-color:#3b3c36">
     
-    <h3 style="color:darkgray">Inputs</h3>
+<body style="background-color:#100c08">
+    
+    <header>
+        <h1 style="color:whitesmoke;">Can you speak like a violin?</h1>
+        <h2 style="color:whitesmoke;">Using a voice conversion method to perform timbre translation on musical sounds.</h2>
+        <p style="color:whitesmoke;">Here you will find some results produced by a <a href="https://github.com/gbittencourt/ATIAM2022-timbre-transfer">timbre transfert project</a>. The presented samples on this page are presented on datasets of 8 samples with their audio and respectives spectograms</p>
+    </header>
+    
+    <h2 style="color:darkgray">Inputs</h2>
     
     <p>Used input dataset: 8 audio samples of voice and 8 audio samples of violin</p>
 
@@ -31,9 +33,9 @@
     
     <p style="color:white">Using the presented datasets, the model was treined with 3 different loss functions:</p>
     <ul style="color:white;">
-        <li>there is only the VAE component on the loss: L = a1 L_VAE</li>
-        <li>there are the VAE and CC component: L = a1 L_VAE + a1 L_CC</li>
-        <li>complete model, with VAE and GAN: L = a1 L_VAE + a1 L_CC + a2 L_GAN</li>
+        <li>there is only the VAE component on the loss: L = lambda1 x L_VAE</li>
+        <li>there are the VAE and CC component: L = lambda1 x L_VAE + lambda1 x L_CC</li>
+        <li>complete model, with VAE and GAN: L = lambda1 x L_VAE + lambda1 x L_CC + lambda2 x L_GAN</li>
     </ul>
     
     <p style="color:white">For each loss function there were produced audios from 4 configurations</p>
@@ -44,14 +46,14 @@
         <li>original audio from violin database (encoder) and create a violin audio (decoder)</li>
     </ol>
     
-    <h3 style="color:darkgray">Test VAEs</h3>
+    <h2 style="color:darkgray">Test VAEs : L = lambda1 x L_VAE</h2>
 
     <script type="text/javascript">
         const audio_src_vae = ["Voice", "Violin"];
         for (var i = 1; i < 3; i++) {
             for (var j = 1; j < 3; j++) {
                 let config_model = i + i + j - 2;
-                document.body.innerHTML += '<h4 style="color:white;">' + config_model + '. Model origin domain: ' + audio_src_vae[i-1] + ' dataset and target domain: ' + audio_src_vae[j-1] + '.</h4>'
+                document.body.innerHTML += '<h3 style="color:white;">' + config_model + '. Model origin domain: ' + audio_src_vae[i-1] + ' dataset and target domain: ' + audio_src_vae[j-1] + '.</h3>'
                 for (var k = 0; k < 8; k++) {
                     document.body.innerHTML += '<audio src="assets/2VAEs/y' + i + '' + j + '_' + k + '.wav" type="audio/mpeg" controls>Your browser does not support the audio element</audio>'
                 };
@@ -60,14 +62,14 @@
         };
     </script>
 
-    <h3 style="color:darkgray">Test VAEs CC</h3>
+    <h2 style="color:darkgray">Test VAEs CC : L = lambda1 x L_VAE + lambda1 x L_CC</h2>
 
     <script type="text/javascript">
         const audio_src_vae_cc = ["Voice", "Violin"];
         for (var i = 1; i < 3; i++) {
             for (var j = 1; j < 3; j++) {
                 let config_model = i + i + j - 2;
-                document.body.innerHTML += '<h4 style="color:white;">' + config_model + '. Model origin domain: ' + audio_src_vae_cc[i-1] + ' dataset and target domain: ' + audio_src_vae_cc[j-1] + '.</h4>'
+                document.body.innerHTML += '<h3 style="color:white;">' + config_model + '. Model origin domain: ' + audio_src_vae_cc[i-1] + ' dataset and target domain: ' + audio_src_vae_cc[j-1] + '.</h3>'
                 for (var k = 0; k < 8; k++) {
                     document.body.innerHTML += '<audio src="assets/2VAEs_CC/y' + i + '' + j + '_' + k + '.wav" type="audio/mpeg" controls>Your browser does not support the audio element</audio>'
                 };
@@ -76,14 +78,14 @@
         };
     </script>
     
-    <h3 style="color:darkgray">Test VAEs CC GAN</h3>
+    <h2 style="color:darkgray">Test VAEs CC GAN : L = lambda1 x L_VAE + lambda1 x L_CC + lambda2 x L_GAN</h2>
 
     <script type="text/javascript">
         const audio_src_vae_cc_gan = ["Voice", "Violin"];
         for (var i = 1; i < 3; i++) {
             for (var j = 1; j < 3; j++) {
                 let config_model = i + i + j - 2;
-                document.body.innerHTML += '<h4 style="color:white;">' + config_model + '. Model origin domain: ' + audio_src_vae_cc_gan[i-1] + ' dataset and target domain: ' + audio_src_vae_cc_gan[j-1] + '.</h4>'
+                document.body.innerHTML += '<h3 style="color:white;">' + config_model + '. Model origin domain: ' + audio_src_vae_cc_gan[i-1] + ' dataset and target domain: ' + audio_src_vae_cc_gan[j-1] + '.</h3>'
                 for (var k = 0; k < 8; k++) {
                     document.body.innerHTML += '<audio src="assets/2VAEs_CC_GAN/y' + i + '' + j + '_' + k + '.wav" type="audio/mpeg" controls>Your browser does not support the audio element</audio>'
                 };
