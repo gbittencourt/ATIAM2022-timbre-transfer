@@ -14,36 +14,22 @@
 
     <h3>Test x</h3>
 
-    <p>Spectogram x1 <br>
-        <img src="assets/x1.png" alt="Spectogram x1">
-    </p>
-
-    <p>Audios x1</p>
-
     <script type="text/javascript">
-        for (var i = 0; i < 8; i++) {
-            document.body.innerHTML += '<audio src="assets/x1_' + i + '.wav" type="audio/mpeg" controls>Your browser does not support the audio element</audio>'
+        for (var i = 1; i < 3; i++) {
+            document.body.innerHTML += '<p>Spectogram x' + i + '<br><img src="assets/x' + i + '.png" alt="Spectogram x' + i + '."></p>'
+            document.body.innerHTML += '<p>Audios x' + i +'</p>'
+            for (var k = 0; k < 8; k++) {
+                document.body.innerHTML += '<audio src="assets/x' + i + '_' + k + '.wav" type="audio/mpeg" controls>Your browser does not support the audio element</audio>'
+            };
         };
     </script>
     
-    <p>Spectogram x2 <br>
-        <img src="assets/x2.png" alt="Spectogram x2">
-    </p>
-
-    <p>Audios x2</p>
-
-    <script type="text/javascript">
-        for (var i = 0; i < 8; i++) {
-            document.body.innerHTML += '<audio src="assets/x2_' + i + '.wav" type="audio/mpeg" controls>Your browser does not support the audio element</audio>'
-        };
-    </script>
-
     <h3>Test VAE</h3>
 
     <script type="text/javascript">
         for (var i = 1; i < 3; i++) {
             for (var j = 1; j < 3; j++) {
-                document.body.innerHTML += '<p>Spectogram y' + i + '' + j + '<br><img src="assets/y' + i + '' + j + '.png" alt="Spectogram y' + i + '' + j + '."></p>'
+                document.body.innerHTML += '<p>Spectogram y' + i + '' + j + '<br><img src="assets/2VAEs/y' + i + '' + j + '.png" alt="Spectogram y' + i + '' + j + '."></p>'
             };
         };
     </script>
