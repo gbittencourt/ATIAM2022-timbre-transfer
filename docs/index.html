@@ -22,8 +22,19 @@
 
     <script type="text/javascript">
         for (var i = 0; i < 8; i++) {
-            src_str = "assets/x1_"+i+".wav";
             document.body.innerHTML += '<audio src="assets/x1_' + i + '.wav" type="audio/mpeg" controls>Your browser does not support the audio element</audio>'
+        };
+    </script>
+    
+    <p>Spectogram x2 <br>
+        <img src="assets/x2.png" alt="Spectogram x2">
+    </p>
+
+    <p>Audios x2</p>
+
+    <script type="text/javascript">
+        for (var i = 0; i < 8; i++) {
+            document.body.innerHTML += '<audio src="assets/x2_' + i + '.wav" type="audio/mpeg" controls>Your browser does not support the audio element</audio>'
         };
     </script>
     
