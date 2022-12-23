@@ -1,7 +1,6 @@
 Notebooks/data/*
 Notebooks/VAE_mnist_peladeau.pt
 data/*
-*.wav
 *.gz
 *.part
 Notebooks/.ipynb_checkpoints/*
