@@ -7,7 +7,7 @@
 
 <body style="background-color:black">
 
-    <header>
+    <header style="background-color:white">
         <h1>Can you speak like a violin?</h1>
         <h2>Using a voice conversion method to perform timbre translation on musical sounds.</h2>
     </header>
@@ -15,16 +15,16 @@
     <h3>Inputs</h3>
 
     <script type="text/javascript">
-        document.body.innerHTML += '<p>Input x1: Voice dataset</p>
-        document.body.innerHTML += '<p>Spectograms of 8 samples<br><img src="assets/x1.png" alt="Spectogram Voice"></p>'
-        document.body.innerHTML += '<p>Samples</p>'
+        document.body.innerHTML += '<p style="color:white;">Input x1: Voice dataset</p>
+        document.body.innerHTML += '<p style="color:white;">Spectograms of 8 samples<br><img src="assets/x1.png" alt="Spectogram Voice"></p>'
+        document.body.innerHTML += '<p style="color:white;">Samples</p>'
         for (var k = 0; k < 8; k++) {
             document.body.innerHTML += '<audio src="assets/x1_' + k + '.wav" type="audio/mpeg" controls>Your browser does not support the audio element</audio>'
         };
         
-        document.body.innerHTML += '<p>Input x2: Violin dataset</p>
-        document.body.innerHTML += '<p>Spectograms of 8 samples<br><img src="assets/x2.png" alt="Spectogram Violin"></p>'
-        document.body.innerHTML += '<p>Samples</p>'
+        document.body.innerHTML += '<p style="color:white;">Input x2: Violin dataset</p>
+        document.body.innerHTML += '<p style="color:white;">Spectograms of 8 samples<br><img src="assets/x2.png" alt="Spectogram Violin"></p>'
+        document.body.innerHTML += '<p style="color:white;">Samples</p>'
         for (var k = 0; k < 8; k++) {
             document.body.innerHTML += '<audio src="assets/x2_' + k + '.wav" type="audio/mpeg" controls>Your browser does not support the audio element</audio>'
         };
