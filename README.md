@@ -56,3 +56,5 @@ Dataset files hierarchy (here, the root_dir is named "data", as shown on the Pyt
 2VAEs + CC : `python exports_2VAE_CC.py`
 
 2VAEs + CC + GAN : `python exports_2VAE_CC_GAN.py`
+
+*** 
