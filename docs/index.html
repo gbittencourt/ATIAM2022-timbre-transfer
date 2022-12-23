@@ -35,10 +35,10 @@
     <h3 style="background-color:gray">Test VAEs</h3>
 
     <script type="text/javascript">
-        const audio_src = ["Voice", "Violin"];
+        const audio_src_vae = ["Voice", "Violin"];
         for (var i = 1; i < 3; i++) {
             for (var j = 1; j < 3; j++) {
-                document.body.innerHTML += '<p style="color:white;">Model origin domain: ' + audio_src[i-1] + ' dataset and target domain: ' + audio_src[j-1] + ' dataset</p>'
+                document.body.innerHTML += '<p style="color:white;">Model origin domain: ' + audio_src_vae[i-1] + ' dataset and target domain: ' + audio_src_vae[j-1] + ' dataset</p>'
                 document.body.innerHTML += '<p style="color:white;">Spectograms <br><img src="assets/2VAEs/y' + i + '' + j + '.png" alt="Spectogram VAEs y' + i + '' + j + '."></p>'
                 document.body.innerHTML += '<p style="color:white;">Audios</p>'
                 for (var k = 0; k < 8; k++) {
@@ -51,9 +51,10 @@
     <h3 style="background-color:gray">Test VAEs CC</h3>
 
     <script type="text/javascript">
+        const audio_src_vae_cc = ["Voice", "Violin"];
         for (var i = 1; i < 3; i++) {
             for (var j = 1; j < 3; j++) {
-                document.body.innerHTML += '<p style="color:white;">Model origin domain: ' + audio_src[i-1] + ' dataset and target domain: ' + audio_src[j-1] + ' dataset</p>'
+                document.body.innerHTML += '<p style="color:white;">Model origin domain: ' + audio_src_vae_cc[i-1] + ' dataset and target domain: ' + audio_src_vae_cc[j-1] + ' dataset</p>'
                 document.body.innerHTML += '<p style="color:white;">Spectograms <br><img src="assets/2VAEs_CC/y' + i + '' + j + '.png" alt="Spectogram VAEs_CC y' + i + '' + j + '."></p>'
                 document.body.innerHTML += '<p style="color:white;">Audios</p>'
                 for (var k = 0; k < 8; k++) {
@@ -66,9 +67,10 @@
     <h3 style="background-color:gray">Test VAEs CC GAN</h3>
 
     <script type="text/javascript">
+        const audio_src_vae_cc_gan = ["Voice", "Violin"];
         for (var i = 1; i < 3; i++) {
             for (var j = 1; j < 3; j++) {
-                document.body.innerHTML += '<p style="color:white;">Model origin domain: ' + audio_src[i-1] + ' dataset and target domain: ' + audio_src[j-1] + ' dataset</p>'
+                document.body.innerHTML += '<p style="color:white;">Model origin domain: ' + audio_src_vae_cc_gan[i-1] + ' dataset and target domain: ' + audio_src_vae_cc_gan[j-1] + ' dataset</p>'
                 document.body.innerHTML += '<p style="color:white;">Spectograms <br><img src="assets/2VAEs_CC_GAN/y' + i + '' + j + '.png" alt="Spectogram VAEs_CC_GAN y' + i + '' + j + '."></p>'
                 document.body.innerHTML += '<p style="color:white;">Audios</p>'
                 for (var k = 0; k < 8; k++) {
